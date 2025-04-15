@@ -1,249 +1,259 @@
-/*
-* 2025 04 14
-* ÀÏ¹İ »ç¿ëÀÚ ¿¹¾à ±¸Çö¿ë ¹öÀü
-*/
+ï»¿#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+#include <regex>
+#include <vector>
+#include <set>
+#include <string>
+#include <map>
 
-
-// ±âº» ÀÔÃâ·Â, ÆÄÀÏÀÔÃâ·Â, ¹®ÀÚ¿­Ã³¸®, º¤ÅÍ ¶óÀÌºê·¯¸® °¡Á®¿È
-#include <iostream>// ÀÔÃâ·Â ±â´É »ç¿ë
-#include <fstream>// ÆÄÀÏ ÀÔÃâ·Â »ç¿ë
-#include <sstream> // ¹®ÀÚ¿­ ½ºÆ®¸² Ã³¸®¿ë
-#include <string>  // ¹®ÀÚ¿­ Å¸ÀÔ »ç¿ë
-#include <vector> // µ¿Àû ¹è¿­ º¤ÅÍ »ç¿ë
-#include <iomanip>// Ãâ·Â Á¤·Ä¿ë (setw ¾µ ¶§ ÇÊ¿ä)
 using namespace std;
+namespace fs = filesystem;
 
-// »ç¿ëÀÚ ±¸Á¶Ã¼
-struct User {
-    string id;
-    string password;
-    bool is_admin;
-};
-
-// ¿¹¾à ±¸Á¶Ã¼
-struct Reservation {
-    string user_id;
-    string room;
-    string day;
-    string start_time;
-    string end_time;
-};
-
-// °­ÀÇ½Ç ±¸Á¶Ã¼
-struct Classroom {
-    string room;
-    bool is_available;
-    string available_start;
-    string available_end;
-};
-
-// º¤ÅÍ·Î À¯Àú, ¿¹¾à, °­ÀÇ½Ç ÀúÀåÇÔ, ÀÌ°Ô Á¦ÀÏ °£´ÜÇÔ
-vector<User> users;
-vector<Reservation> reservations;
-vector<Classroom> classrooms;
-
-// ¿äÀÏ ¸®½ºÆ®
-vector<string> weekdays = { "Mon", "Tue", "Wed", "Thu", "Fri" };
-// ½Ã°£´ë ¸®½ºÆ®ÀÓ, 1½Ã°£ ´ÜÀ§
-vector<string> times = {
-    "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"
-};
-
-// ½Ã°£ °ãÄ¡´ÂÁö È®ÀÎÇÏ´Â ÇÔ¼ö
-bool isTimeOverlap(const string& s1, const string& e1, const string& s2, const string& e2) {
-    return !(e1 <= s2 || s1 >= e2);
+const vector<string> requiredFiles = { "user.txt", "reservation.txt", "classroom.txt" };
+/// <summary>
+/// ì£¼ì–´ì§„ ë¬¸ìì—´ì˜ ì•ë’¤ ê³µë°±ì„ ì œê±°í•©ë‹ˆë‹¤.
+/// </summary>
+string trim(const string& str) {
+    size_t first = str.find_first_not_of(" \t\n\r");
+    size_t last = str.find_last_not_of(" \t\n\r");
+    return (first == string::npos) ? "" : str.substr(first, last - first + 1);
+}
+/// <summary>
+/// ì‚¬ê°„  í˜•ì‹ì´ HH:MMì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤. timePatternì„ ì¡°ì •í•˜ì—¬ ê·¸ ë²”ìœ„ë¥¼ ì¡°ì ˆ ê°€ëŠ¥í•©ë‹ˆë‹¤.
+/// timePatternëŠ” [01]?[0-9]|2[0-3]ëŠ” ì²«ì§¸ìë¦¬ê°€ 0 OR 1ì´ë©´ ë‘˜ì§¸ìë¦¬ëŠ” 0~9ê¹Œì§€, ì²«ì§¸ìë¦¬ê°€ 2ì´ë©´ ë‘˜ì§¸ìë¦¬ëŠ” 0~3ê¹Œì§€ ê°€ëŠ¥í•˜ë‹¤ëŠ” ì˜ë¯¸ì…ë‹ˆë‹¤.
+/// </summary>
+bool isValidTime(const string& time) {
+    const string timePattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";
+    return regex_match(time, regex(timePattern));
+}
+/// <summary>
+/// ì•„ì´ë””ê°€ í˜•ì‹ì— ë§ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.[a-z0-9]{3,20}ëŠ” a-zê¹Œì§€, 0-9ê¹Œì§€, 3~20ìê¹Œì§€ ê°€ëŠ¥í•˜ë‹¤ëŠ” ì˜ë¯¸ì…ë‹ˆë‹¤.
+/// </summary>
+bool isValidID(const string& id) {
+    const string idPattern = "^[a-z0-9]{3,20}$";
+    return regex_match(id, regex(idPattern));
+}
+/// <summary>
+/// ë¹„ë°€ë²ˆí˜¸ê°€ í˜•ì‹ì— ë§ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤. [A-Za-z]ëŠ” ëŒ€ì†Œë¬¸ì ì•ŒíŒŒë²³, \\dëŠ” ìˆ«ì, ~!@#$%^&*()ëŠ” íŠ¹ìˆ˜ë¬¸ì, 4~20ìê¹Œì§€ ê°€ëŠ¥í•˜ë‹¤ëŠ” ì˜ë¯¸ì…ë‹ˆë‹¤.
+/// ë¹„ë°€ë²ˆí˜¸ëŠ” ê³µë°±ì„ í¬í•¨í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.
+/// </summary>
+bool isValidPassword(const string& pw) {
+    if (pw.find(' ') != string::npos) return false;
+    const string pwPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d~!@#$%^&*()]{4,20}$";
+    return regex_match(pw, regex(pwPattern));
+}
+/// <summary>
+/// ê°•ì˜ì‹¤ ë²ˆí˜¸ê°€ í˜•ì‹ì— ë§ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤. \\d{1,10}ì€ 1~10ìë¦¬ ìˆ«ìê¹Œì§€ ê°€ëŠ¥í•˜ë‹¤ëŠ” ì˜ë¯¸ì…ë‹ˆë‹¤.
+/// </summary>
+bool isValidRoomNumber(const string& num) {
+    return regex_match(num, regex("^\\d{1,10}$"));
 }
 
-// °­ÀÇ½Ç ºÒ·¯¿À´Â ÇÔ¼ö
-bool loadClassrooms() {
-    ifstream fin("classroom.txt");
-    if (!fin) return false;
-    string room, start, end;
-    int avail;
-    while (fin >> room >> avail >> start >> end) {
-        bool available_flag = (avail != 0);  // intÀ» bool·Î ¹Ù²Ş
-        classrooms.push_back({ room, available_flag, start, end });
-    }
-    return true;
+/// <summary>
+/// ì£¼ì–´ì§„ ì‹œê°„ ë¬¸ìì—´ì„ ë¶„ìœ¼ë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
+/// </summary>
+int timeToMinutes(const string& time) {
+    int hour = stoi(time.substr(0, 2));
+    int min = stoi(time.substr(3, 2));
+    return hour * 60 + min;
 }
 
-// À¯Àú ºÒ·¯¿À´Â ÇÔ¼ö
-bool loadUsers() {
-    ifstream fin("user.txt");
-    if (!fin) return false;
-    string id, pw;
-    int admin;
-    while (fin >> id >> pw >> admin) {
-        bool isAdmin = (admin != 0);
-        users.push_back({ id, pw, isAdmin });
-    }
-    return true;
-}
-
-// ¿¹¾à ºÒ·¯¿À´Â ÇÔ¼ö
-bool loadReservations() {
-    ifstream fin("reservation.txt");
-    if (!fin) return false;
-    string id, room, start, end, day;
-    while (fin >> id >> room >> start >> end >> day) {
-        reservations.push_back({ id, room, day, start, end });
-    }
-    return true;
-}
-
-// °­ÀÇ½Ç Ãşº°·Î Ãâ·ÂÇØÁÜ, ±×´ë·Î ½áµµ µÉµí
-void printClassroomList() {
-    cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room << ", "; cout << endl;
-    cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room << ", "; cout << endl;
-    cout << "5F: "; for (auto& c : classrooms) if (c.room[0] == '5') cout << c.room << ", "; cout << endl;
-    cout << "6F: "; for (auto& c : classrooms) if (c.room[0] == '6') cout << c.room << ", "; cout << endl;
-}
-
-// °­ÀÇ½Ç ½Ã°£Ç¥ Ãâ·ÂÇÔ, Å×½ºÆ® ¿ëÀ¸·Î ±¸ÇöÇÑ°Å¶ó º¸¿Ï ÇÊ¿ä
-void printTimeTable(const string& room) {
-    cout << "      ";
-    for (auto& day : weekdays) cout << setw(6) << day;
-    cout << endl;
-    for (int t = 0; t < 9; ++t) {
-        string t1 = times[t];
-        string t2 = times[t + 1];
-        cout << t1 << "~" << t2 << " ";
-        for (int d = 1; d <= 5; ++d) {
-            bool reserved = false;
-            for (auto& r : reservations) {
-                if (r.room == room && stoi(r.day) == d && isTimeOverlap(r.start_time, r.end_time, t1, t2)) {
-                    reserved = true;
-                    break;
-                }
+/// <summary>
+/// ì£¼ì–´ì§„ ë¶„ì„ HH:MM í˜•ì‹ì˜ ë¬¸ìì—´ë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
+/// </summary>
+bool checkFilesExistAndCreate() {
+    bool ok = true;
+    for (const auto& file : requiredFiles) {
+        if (!fs::exists(file)) {
+            cout << "[ê²½ê³ ] íŒŒì¼ ì—†ìŒ: " << file << " -> ìƒì„± ì¤‘...\n";
+            ofstream ofs(file);
+            if (!ofs) {
+                cerr << "[ì˜¤ë¥˜] íŒŒì¼ ìƒì„± ì‹¤íŒ¨: " << file << endl;
+                ok = false;
             }
-            cout << setw(6) << (reserved ? "X" : "O");
-        }
-        cout << endl;
-    }
-    cout << "press any key to continue ...";
-    cin.ignore(); cin.get();  // ¾Æ¹« Å° ´ë±â
-}
-
-// ·Î±×ÀÎ ±â´É, Å×½ºÆ® ¿ëÀ¸·Î ±¸ÇöÇÑ°Å¶ó º¸¿Ï ÇÊ¿ä
-User* login() {
-    string id, pw;
-    cout << "ID: "; cin >> id;
-    cout << "PW: "; cin >> pw;
-    for (auto& u : users) {
-        if (u.id == id && u.password == pw) return &u;
-    }
-    cout << ".!! ID or PW is incorrect\n";
-    return nullptr;
-}
-
-// °­ÀÇ½Ç ¿¹¾àÇÏ´Â ÇÔ¼ö
-void reserveClassroom(const string& user_id) {
-    string room, day, start, end;
-    cout << "classroom number: "; cin >> room;
-    cout << "day(1~5): "; cin >> day;
-    cout << "start time(HH:MM): "; cin >> start;
-    cout << "end time(HH:MM): "; cin >> end;
-
-    // °ãÄ¡´Â ½Ã°£ ¿¹¾àÇß´ÂÁö Ã¼Å©
-    for (const auto& r : reservations) {
-        if (r.user_id == user_id && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end)) {
-            cout << ".!! Already reserved time\n";
-            return;
         }
     }
-
-    // °­ÀÇ½Ç ¿¹¾à °¡´É½Ã°£ ¾È¿¡ ÀÖ´ÂÁö È®ÀÎ
-    for (const auto& c : classrooms) {
-        if (c.room == room && c.is_available && c.available_start <= start && c.available_end >= end) {
-            reservations.push_back({ user_id, room, day, start, end });
-            ofstream fout("reservation.txt", ios::app);
-            fout << user_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
-            cout << "Reservation completed\n";
-            return;
+    return ok;
+}
+/// <summary>
+/// ì£¼ì–´ì§„ íŒŒì¼ì— ëŒ€í•œ ì½ê¸° ë° ì“°ê¸° ê¶Œí•œì„ í™•ì¸í•©ë‹ˆë‹¤.
+/// </summary>
+bool checkFilePermissions() {
+    bool ok = true;
+    for (const auto& file : requiredFiles) {
+        ifstream in(file);
+        ofstream out(file, ios::app);
+        if (!in.is_open() || !out.is_open()) {
+            cerr << "[ì˜¤ë¥˜] ê¶Œí•œ ë¶€ì¡±: " << file << endl;
+            ok = false;
         }
     }
-    cout << ".!! This is not a time available for reservation\n";
+    return ok;
 }
 
-// ¿¹¾à Ãë¼Ò ±â´É
-void cancelReservation(const string& user_id) {
-    vector<int> indices;
-    for (int i = 0; i < reservations.size(); ++i) {
-        if (reservations[i].user_id == user_id) {
-            cout << indices.size() + 1 << ". " << reservations[i].room << " " << weekdays[stoi(reservations[i].day) - 1] << " " << reservations[i].start_time << "~" << reservations[i].end_time << endl;
-            indices.push_back(i);
+set<string> registeredUsers;
+map<string, pair<string, string>> classroomTime;
+
+bool validateUserFile(const string& filename) {
+    ifstream fin(filename);
+    string line;
+    set<string> idSet;
+    int lineNum = 0;
+    bool ok = true;
+    while (getline(fin, line)) {
+        lineNum++;
+        string cleanedLine = line.substr(0, line.find('#'));
+        istringstream iss(cleanedLine);
+        string id, pw, adminFlag;
+        iss >> id >> pw >> adminFlag;
+
+        id = trim(id);
+        pw = trim(pw);
+        adminFlag = trim(adminFlag);
+
+        if (id.empty() || pw.empty() || adminFlag.empty()) continue;
+        if (!isValidID(id)) {
+            cerr << "[ì˜¤ë¥˜] user.txt ë¼ì¸ " << lineNum << ": ì˜ëª»ëœ ID í˜•ì‹: " << id << endl;
+            ok = false;
+        }
+        if (!isValidPassword(pw)) {
+            cerr << "[ì˜¤ë¥˜] user.txt ë¼ì¸ " << lineNum << ": ì˜ëª»ëœ ë¹„ë°€ë²ˆí˜¸ í˜•ì‹: " << pw << endl;
+            ok = false;
+        }
+        if (adminFlag != "0" && adminFlag != "1") {
+            cerr << "[ì˜¤ë¥˜] user.txt ë¼ì¸ " << lineNum << ": ê´€ë¦¬ì ì—¬ë¶€ëŠ” 0 ë˜ëŠ” 1ì´ì–´ì•¼ í•¨: " << adminFlag << endl;
+            ok = false;
+        }
+        if (idSet.count(id)) {
+            cerr << "[ì˜¤ë¥˜] user.txt ë¼ì¸ " << lineNum << ": ì¤‘ë³µëœ ID ë°œê²¬: " << id << endl;
+            ok = false;
+        }
+        idSet.insert(id);
+        registeredUsers.insert(id);
+    }
+    return ok;
+}
+
+bool validateClassroomFile(const string& filename) {
+    ifstream fin(filename);
+    string line;
+    int lineNum = 0;
+    bool ok = true;
+    while (getline(fin, line)) {
+        lineNum++;
+        string cleanedLine = line.substr(0, line.find('#'));
+        istringstream iss(cleanedLine);
+        string room, status, start, end;
+        iss >> room >> status >> start >> end;
+
+        room = trim(room);
+        status = trim(status);
+        start = trim(start);
+        end = trim(end);
+
+        if (!room.empty() && status == "1") {
+            classroomTime[room] = make_pair(start, end);
+        }
+
+        if (!isValidRoomNumber(room)) {
+            cerr << "[ì˜¤ë¥˜] classroom.txt ë¼ì¸ " << lineNum << ": ì˜ëª»ëœ ê°•ì˜ì‹¤ ë²ˆí˜¸: " << room << endl;
+            ok = false;
+        }
+        if (status != "0" && status != "1") {
+            cerr << "[ì˜¤ë¥˜] classroom.txt ë¼ì¸ " << lineNum << ": ì˜ˆì•½ ê°€ëŠ¥ ì—¬ë¶€ëŠ” 0 ë˜ëŠ” 1ì´ì–´ì•¼ í•¨: " << status << endl;
+            ok = false;
+        }
+        if (!isValidTime(start) || !isValidTime(end)) {
+            cerr << "[ì˜¤ë¥˜] classroom.txt ë¼ì¸ " << lineNum << ": ì˜ëª»ëœ ì‹œê°„ í˜•ì‹: " << start << " - " << end << endl;
+            ok = false;
+        }
+        if (start >= end) {
+            cerr << "[ì˜¤ë¥˜] classroom.txt ë¼ì¸ " << lineNum << ": ì‹œì‘ ì‹œê°„ì´ ì¢…ë£Œ ì‹œê°„ë³´ë‹¤ ê°™ê±°ë‚˜ ëŠ¦ìŒ: " << start << " - " << end << endl;
+            ok = false;
         }
     }
-    if (indices.empty()) {
-        cout << "No reservations to cancel\n";
-        return;
-    }
-    cout << "Enter the number you want to cancel: ";
-    int choice; cin >> choice;
-    if (choice < 1 || choice > indices.size()) {
-        cout << ".!! Invalid input\n";
-        return;
-    }
-    reservations.erase(reservations.begin() + indices[choice - 1]);
-    ofstream fout("reservation.txt");
-    for (auto& r : reservations) {
-        fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t" << r.end_time << "\t" << r.day << endl;
-    }
-    cout << "Reservation canceled\n";
+    return ok;
 }
 
-// ÇÁ·Î±×·¥ ½ÃÀÛ
+bool validateReservationFile(const string& filename) {
+    ifstream fin(filename);
+    string line;
+    map<string, vector<pair<int, int>>> reservationTimeline;
+    map<string, int> userTotalTime;
+    int lineNum = 0;
+    bool ok = true;
+
+    while (getline(fin, line)) {
+        lineNum++;
+        string cleanedLine = line.substr(0, line.find('#'));
+        istringstream iss(cleanedLine);
+        string user, room, start, end;
+        iss >> user >> room >> start >> end;
+
+        user = trim(user);
+        room = trim(room);
+        start = trim(start);
+        end = trim(end);
+
+        if (user.empty() || room.empty() || start.empty() || end.empty()) continue;
+        if (!isValidID(user) || !isValidRoomNumber(room) || !isValidTime(start) || !isValidTime(end) || start >= end) {
+            cerr << "[ì˜¤ë¥˜] reservation.txt ë¼ì¸ " << lineNum << ": ì˜ëª»ëœ ì˜ˆì•½ í˜•ì‹: " << line << endl;
+            ok = false;
+            continue;
+        }
+        if (!registeredUsers.count(user)) {
+            cerr << "[ì˜¤ë¥˜] reservation.txt ë¼ì¸ " << lineNum << ": ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ì‚¬ìš©ì ID: " << user << endl;
+            ok = false;
+        }
+        if (!classroomTime.count(room)) {
+            cerr << "[ì˜¤ë¥˜] reservation.txt ë¼ì¸ " << lineNum << ": ì˜ˆì•½ ë¶ˆê°€ëŠ¥í•œ ê°•ì˜ì‹¤ ë²ˆí˜¸: " << room << endl;
+            ok = false;
+        }
+        auto [open, close] = classroomTime[room];
+        if (start < open || end > close) {
+            cerr << "[ì˜¤ë¥˜] reservation.txt ë¼ì¸ " << lineNum << ": ê°•ì˜ì‹¤ ì˜ˆì•½ ê°€ëŠ¥ ì‹œê°„ ì™¸ ìš”ì²­: " << room << " " << start << "-" << end << endl;
+            ok = false;
+        }
+
+        int s = timeToMinutes(start), e = timeToMinutes(end);
+        for (const auto& [rs, re] : reservationTimeline[user]) {
+            if (!(e <= rs || s >= re)) {
+                cerr << "[ì˜¤ë¥˜] reservation.txt ë¼ì¸ " << lineNum << ": ì‚¬ìš©ì ì¤‘ë³µ ì˜ˆì•½ ê°ì§€: " << user << " " << start << "-" << end << endl;
+                ok = false;
+            }
+        }
+        reservationTimeline[user].emplace_back(s, e);
+        userTotalTime[user] += e - s;
+        if (userTotalTime[user] > 180) {
+            cerr << "[ì˜¤ë¥˜] reservation.txt ë¼ì¸ " << lineNum << ": ì‚¬ìš©ì ì˜ˆì•½ ì´í•© 3ì‹œê°„ ì´ˆê³¼: " << user << endl;
+            ok = false;
+        }
+    }
+    return ok;
+}
+
+void performIntegrityCheck() {
+    cout << "[ì‹œì‘] ë¬´ê²°ì„± ê²€ì‚¬ing\n";
+    bool hasError = false;
+
+    if (!checkFilesExistAndCreate()) hasError = true;
+    if (!checkFilePermissions()) hasError = true;
+    if (!validateUserFile("user.txt")) hasError = true;
+    if (!validateClassroomFile("classroom.txt")) hasError = true;
+    if (!validateReservationFile("reservation.txt")) hasError = true;
+
+    if (hasError) {
+        cerr << "[ì¢…ë£Œ] ë¬´ê²°ì„± ê²€ì‚¬ ì‹¤íŒ¨\n";
+        exit(1);
+    }
+    else {
+        cout << "[ì™„ë£Œ] ë¬´ê²°ì„± ê²€ì‚¬ í†µê³¼\n";
+    }
+}
+
 int main() {
-    // ÆÄÀÏ ·Îµù ¾ÈµÇ¸é Á¾·áÇÔ, µ¥ÀÌÅÍ ¹«°á¼º ÆÄÆ®¿¡¼­ Ãß°¡ÇÒ ¿¹Á¤
-    if (!loadUsers() || !loadClassrooms() || !loadReservations()) {
-        return 1;
-    }
-
-    while (true) {
-        cout << "----Classroom Booking Program----\n";
-        cout << "1. login\n2. accession\n3. exit\n>> ";
-        int sel; cin >> sel;
-        if (sel == 1) {
-            User* user = nullptr;
-            while (!user) user = login();
-            if (user->is_admin) {
-                cout << "-- Main for manager --\n";
-                // °ü¸®ÀÚ ±â´ÉÀº ¾ÆÁ÷ ±¸Çö ¾ÈµÊ
-            }
-            else {
-                cout << "-- Main --\n";
-                while (true) {
-                    cout << "1. classroom list\n2. reserve classroom\n3. cancel reservation\n4. logout\n>> ";
-                    int c; cin >> c;
-                    if (c == 1) {
-                        printClassroomList();
-                        cout << "classroom number: ";
-                        string room; cin >> room;
-                        printTimeTable(room);
-                    }
-                    else if (c == 2) reserveClassroom(user->id);
-                    else if (c == 3) cancelReservation(user->id);
-                    else if (c == 4) break;
-                }
-            }
-        }
-        else if (sel == 2) {
-            // È¸¿ø°¡ÀÔ
-            string id, pw;
-            cout << "ID: "; cin >> id;
-            cout << "PW: "; cin >> pw;
-            users.push_back({ id, pw, false });
-            ofstream fout("user.txt", ios::app);
-            fout << id << "\t" << pw << "\t0\n";
-            cout << "Registration complete\n";
-        }
-        else if (sel == 3) {
-            // Á¾·á È®ÀÎ
-            string confirm;
-            cout << "If you want to quit this program, enter 'quit': ";
-            cin >> confirm;
-            if (confirm == "quit") break;
-        }
-    }
+    performIntegrityCheck();
     return 0;
 }
