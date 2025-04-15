@@ -1,5 +1,0 @@
-john123    pass123     0
-admin@@    password    1       # 특수문자 있는 ID
-guest      pass         0       # 숫자 없는 비밀번호
-john123    Pass123      0       # 중복된 ID
-staff      pa ss123     0       # 공백 포함 비밀번호
