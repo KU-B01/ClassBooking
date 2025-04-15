@@ -11,6 +11,7 @@
 #include <string>  // 문자열 타입 사용
 #include <vector> // 동적 배열 벡터 사용
 #include <iomanip>// 출력 정렬용 (setw 쓸 때 필요)
+#include "util.hpp"
 using namespace std;
 
 // 사용자 구조체
@@ -91,12 +92,64 @@ bool loadReservations() {
     return true;
 }
 
+// 존재하는 강의실인지 확인
+bool isExistRoomNumber(const string& input) {
+    for (const Classroom& cls : classrooms) {
+        if (cls.room == input) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// 존재하는 사용자인지 확인 
+bool isExistUser(const string& input) {
+    for (const User& usr : users) {
+        if (usr.id == input) {
+            return true;
+        }
+    }
+    return false;
+}
+
+string InputClassroom() {
+    string input;
+
+    while (true) {
+        cout << "classroom number: ";
+        cin >> input;
+
+        // 포맷이 잘못됐거나 존재하지 않는 강의실이면 다시 입력
+        if (!validateRoomNumber(input) || !isExistRoomNumber(input)) {
+            cout << ".!! The classroom you entered doesn't exist. Please try again.\n";
+        }
+        else {
+            return input;  // 유효하면 반환
+        }
+    }
+}
+
+void InputUser() {
+    string input;
+
+    while (true) {
+        cout << "ID:";
+        cin >> input;
+
+        if (!isExistUser(input)) {
+            cout << ".!! ID doesn't exist.\n";
+        }
+        else { break; }
+    }
+
+}
+
 // 강의실 층별로 출력해줌, 그대로 써도 될듯
 void printClassroomList() {
-    cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room << ", "; cout << endl;
-    cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room << ", "; cout << endl;
-    cout << "5F: "; for (auto& c : classrooms) if (c.room[0] == '5') cout << c.room << ", "; cout << endl;
-    cout << "6F: "; for (auto& c : classrooms) if (c.room[0] == '6') cout << c.room << ", "; cout << endl;
+    cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room; cout << endl;
+    cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room; cout << endl;
+    cout << "5F: "; for (auto& c : classrooms) if (c.room[0] == '5') cout << c.room; cout << endl;
+    cout << "6F: "; for (auto& c : classrooms) if (c.room[0] == '6') cout << c.room; cout << endl;
 }
 
 // 강의실 시간표 출력함, 테스트 용으로 구현한거라 보완 필요
@@ -138,8 +191,8 @@ User* login() {
 
 // 강의실 예약하는 함수
 void reserveClassroom(const string& user_id) {
-    string room, day, start, end;
-    cout << "classroom number: "; cin >> room;
+    string day, start, end;
+    string room = InputClassroom();  // 함수 호출하면서 room을 받아옴
     cout << "day(1~5): "; cin >> day;
     cout << "start time(HH:MM): "; cin >> start;
     cout << "end time(HH:MM): "; cin >> end;
@@ -190,6 +243,12 @@ void cancelReservation(const string& user_id) {
         fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t" << r.end_time << "\t" << r.day << endl;
     }
     cout << "Reservation canceled\n";
+}
+
+// 관리자가 강의실 예약하는 함수
+void adminReserveClassroom(const string& user_id) {
+    InputUser();
+    reserveClassroom(user_id);
 }
 
 // 프로그램 시작
