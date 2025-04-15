@@ -20,7 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClassBooking.cpp" />
-    <ClCompile Include="classroomList.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="classroomList.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

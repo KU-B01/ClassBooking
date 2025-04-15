@@ -11,6 +11,7 @@
 #include <string>  // 문자열 타입 사용
 #include <vector> // 동적 배열 벡터 사용
 #include <iomanip>// 출력 정렬용 (setw 쓸 때 필요)
+#include <conio.h>  // kbhit, getch --> windows용, mac에서는 termios 사용
 using namespace std;
 
 // 사용자 구조체
@@ -41,6 +42,10 @@ struct Classroom {
 vector<User> users;
 vector<Reservation> reservations;
 vector<Classroom> classrooms;
+
+//사용자 list조회용 변수
+string classroomNum;                  // 입력받는 강의실 번호
+bool triggered = false;     // main 아무 키 입력 무한루프문 제어
 
 // 요일 리스트
 vector<string> weekdays = { "Mon", "Tue", "Wed", "Thu", "Fri" };
@@ -91,8 +96,51 @@ bool loadReservations() {
     return true;
 }
 
+
+// 강의실 번호를 입력받는 함수
+string getClassroomNum() {
+
+    string input;
+    cout << "classroom number: ";
+    // 스트림 정리(오류 메시지 일찍 출력)
+    cin.ignore(numeric_limits<streamsize>::max(), ' ');
+    getline(cin, input);  //전체 문자열을 받음
+
+    string parsedInput = "";
+    for (char ch : input) {
+        if (ch != ' ' && ch != '\t' && ch != '\n') {
+            parsedInput += ch;
+        }
+    }
+    stringstream ss(parsedInput);
+    ss >> classroomNum;
+
+    return classroomNum;
+}
+
+// 강의실 번호 유효성 확인
+bool checkClassroomNum(string classroomNum) {
+    for (auto& c : classrooms) {
+        if (classroomNum == c.room) {   //문자열 비교
+            return true;
+        }
+    }
+    // classroom.txt에 없는 강의실 번호일 경우
+    return false;
+}
+
+// index로 입력받을 때 유효성 검사 함수
+bool checkIdx(string inputIdx) {
+    if (inputIdx.length() == 1 && inputIdx[0] >= '0' && inputIdx[0] <= '9') {
+        return false;
+    }
+    cout << ".!! Enter the index number in the menu." << endl;
+    return true;
+}
+
 // 강의실 층별로 출력해줌, 그대로 써도 될듯
 void printClassroomList() {
+    cout << endl;
     cout << "3F: "; for (auto& c : classrooms) if (c.room[0] == '3') cout << c.room << ", "; cout << endl;
     cout << "4F: "; for (auto& c : classrooms) if (c.room[0] == '4') cout << c.room << ", "; cout << endl;
     cout << "5F: "; for (auto& c : classrooms) if (c.room[0] == '5') cout << c.room << ", "; cout << endl;
@@ -100,8 +148,8 @@ void printClassroomList() {
 }
 
 // 강의실 시간표 출력함, 테스트 용으로 구현한거라 보완 필요
-void printTimeTable(const string& room) {
-    cout << "      ";
+void printTimeTable(string room) {
+    cout << "\n             ";
     for (auto& day : weekdays) cout << setw(6) << day;
     cout << endl;
     for (int t = 0; t < 9; ++t) {
@@ -120,8 +168,45 @@ void printTimeTable(const string& room) {
         }
         cout << endl;
     }
-    cout << "press any key to continue ...";
-    cin.ignore(); cin.get();  // 아무 키 대기
+}
+
+// 6.2.1 사용자 프롬프트 - 목록 조회
+int userClassroomList() {
+    string anyInput = "";
+
+    //파일 유효성 확인 - 프로그램 시작 시 확인해서 필요없을 수도 있을 것 같음
+    // if (!loadClassrooms()) {
+    //     cout << "Failed to load classrooms from file!" << endl;
+    //     return 1;
+    // }
+
+    printClassroomList();
+
+    // 유효한 강의실 번호가 입력될 때까지 반복
+    while (true) {
+        string input = getClassroomNum();
+        if (checkClassroomNum(input)) {
+            printTimeTable(classroomNum);
+            break;
+        }
+        else {
+            cout << ".!! The classroom you entered doesn't exist." << endl;
+            continue;
+        }
+    }
+
+    cout << "Press any key to continue..." << endl;
+
+    // 아무 키 입력 대기
+    while (true) {
+        if (!triggered && _kbhit()) {
+            _getch();     // 입력받음
+            cout << endl;
+            break;  // 대기 종료
+        }
+    }
+
+    return 0;
 }
 
 // 로그인 기능, 테스트 용으로 구현한거라 보완 필요
@@ -200,34 +285,36 @@ int main() {
     }
 
     while (true) {
-        cout << "----Classroom Booking Program----\n";
+        cout << "\n----Classroom Booking Program----\n";
         cout << "1. login\n2. accession\n3. exit\n>> ";
-        int sel; cin >> sel;
-        if (sel == 1) {
+        // sel type int => string (문자열이 입력될 수도 있음)
+        string sel; cin >> sel;
+        
+        if (checkIdx(sel)) continue;
+
+        if (stoi(sel) == 1) {
             User* user = nullptr;
             while (!user) user = login();
             if (user->is_admin) {
-                cout << "-- Main for manager --\n";
+                cout << "\n-- Main for manager --\n";
                 // 관리자 기능은 아직 구현 안됨
             }
             else {
-                cout << "-- Main --\n";
+                cout << "\n-- Main --\n";
                 while (true) {
                     cout << "1. classroom list\n2. reserve classroom\n3. cancel reservation\n4. logout\n>> ";
-                    int c; cin >> c;
-                    if (c == 1) {
-                        printClassroomList();
-                        cout << "classroom number: ";
-                        string room; cin >> room;
-                        printTimeTable(room);
+                    string c; cin >> c;
+                    if (checkIdx(c)) continue;
+                    if (stoi(c) == 1) {
+                        userClassroomList();
                     }
-                    else if (c == 2) reserveClassroom(user->id);
-                    else if (c == 3) cancelReservation(user->id);
-                    else if (c == 4) break;
+                    else if (stoi(c) == 2) reserveClassroom(user->id);
+                    else if (stoi(c) == 3) cancelReservation(user->id);
+                    else if (stoi(c) == 4) break;
                 }
             }
         }
-        else if (sel == 2) {
+        else if (stoi(sel) == 2) {
             // 회원가입
             string id, pw;
             cout << "ID: "; cin >> id;
@@ -237,7 +324,7 @@ int main() {
             fout << id << "\t" << pw << "\t0\n";
             cout << "Registration complete\n";
         }
-        else if (sel == 3) {
+        else if (stoi(sel) == 3) {
             // 종료 확인
             string confirm;
             cout << "If you want to quit this program, enter 'quit': ";
