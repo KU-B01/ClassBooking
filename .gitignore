@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+
+# IDE 설정 디렉토리 (Visual Studio)
+.vs/
+*.db
+*.suo
+*.pdb
+*.ilk
+*.log
+*.tlog
+*.vcxproj.user
+*.lastbuildstate
+*.idb
+*.exe.recipe
