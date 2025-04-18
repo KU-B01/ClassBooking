@@ -105,7 +105,6 @@ bool isExistRoomNumber(const string& input) {
     }
     return false;
 }
-}
 
 // ���ǽ� ��ȣ�� �Է¹޴� �Լ�
 string getClassroomNum() {
@@ -221,7 +220,7 @@ User* login() {
     return nullptr;
 }
 
-// ���ǽ� �����ϴ� �Լ�
+
 void reserveClassroom(const string& user_id) {
     string room, day, start, end;
     cout << "classroom number: "; cin >> room;
@@ -249,6 +248,146 @@ void reserveClassroom(const string& user_id) {
     }
     cout << ".!! This is not a time available for reservation\n";
 }
+
+//���� ��� ��� �� ���� �Լ� ȣ��
+void showListAndEditReservation() {
+    while (true) {
+        cout << "1. register reservation\n2. checkreservation\n3. delete reservation\n>> ";
+        int input; cin >> input;
+
+        if(input == 1) { //������ID, ���ǽ� ȣ��, ���� �ð��� �Է� �ް� ���
+        
+        }
+        else if(input == 2) { //���� ���� ����Ʈ ��� 6.2.1 reservation.txt
+            
+        }
+        else if(input == 3) { //id�� �Է¹޾� �ش� ������� ���� ���� ���, ����� ���ǽ� ���
+        
+        }
+        else{
+            cout << ".!! Enter the index number in the menu.\n";
+        }
+    }
+}
+
+
+//���ǽ� ���� ��� �� ���� �Լ�- ������
+void showAndEditClassroom(const string& admin_id) {
+    while (true) {
+        cout << "1. check reservation\n2. accept reservation\n3. ban reservation\n>> ";
+        int input; cin >> input;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << ".!! Enter the index number in the menu.\n";
+            continue;
+        }
+
+        if (input == 1) { // 6.3.2.1 check reservation
+            printClassroomList();
+            cout << "classroom number: ";
+            string room; cin >> room;
+            printTimeTable(room);
+        }
+        else if (input == 2) { // 6.3.2.2 accept reservation -> reservation.txt ���� ��ü ��� �����ϰ�
+            cout << "classroom number: ";
+            string room; cin >> room;
+            bool roomFound = false;
+            for (auto& c : classrooms) {
+                if (c.room == room) {
+                    roomFound = true;
+                    cout << "enter a number corresponding to the day of the week\n"
+                         << "(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
+                    int day; cin >> day;
+                    if (day < 1 || day > 5) {
+                        cout << ".!! Invalid weekday input\n";
+                        break;
+                    }
+                    string start, end;
+                    cout << "start accept time: "; cin >> start;
+                    cout << "end accept time: "; cin >> end;
+
+                    vector<Reservation> new_reservations;
+
+                    // �ð� Ȯ�� �˻� �߰��ؾ���.
+                    // ���� ���� ����Ʈ ��ȸ�ϸ鼭 ����(������) ���� �� ���ð���� ��ġ�� �κ� ����
+                    for (auto it = reservations.begin(); it != reservations.end(); ) {
+                        if (it->user_id == admin_id &&
+                            it->room == room &&
+                            it->day == to_string(day) &&
+                            isTimeOverlap(it->start_time, it->end_time, start, end)) {
+        
+                            // ���ҵ� ���� �ð����� �����
+                            if (it->start_time < start) {
+                                new_reservations.push_back({ admin_id, room, to_string(day), it->start_time, start });
+                            }
+                            if (it->end_time > end) {
+                                new_reservations.push_back({ admin_id, room, to_string(day), end, it->end_time });
+                            }
+        
+                            // ���� ���� ���� ����
+                            it = reservations.erase(it);
+                        }
+                        else {
+                            ++it;
+                        }
+                    }
+        
+                    // ���ο� ���� ���� �߰�
+                    for (const auto& r : new_reservations) {
+                        reservations.push_back(r);
+                    }
+        
+                    // ���� ��ü ����
+                    ofstream fout("reservation.txt");
+                    for (const auto& r : reservations) {
+                        fout << r.user_id << "\t" << r.room << "\t" << r.start_time << "\t"
+                             << r.end_time << "\t" << r.day << endl;
+                    }
+        
+                    cout << "Accept completed.\n";
+                    break;
+                }
+            }
+                
+            if (!roomFound) cout << ".!! Room not found\n";
+        }
+        else if (input == 3) { // 6.3.2.3 ban reservation ���� ����
+            cout << "classroom number: ";
+            string room; cin >> room;
+            bool roomFound = false;
+            for (auto& c : classrooms) {
+                if (c.room == room) {
+                    roomFound = true;
+                    cout << "enter a number corresponding to the day of the week\n"
+                         << "(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
+                    int day; cin >> day;
+                    if (day < 1 || day > 5) {
+                        cout << ".!! Invalid weekday input\n";
+                        break;
+                    }
+                    string start, end;
+                    cout << "start ban time: "; cin >> start;
+                    cout << "end ban time: "; cin >> end;
+                    // ������ ���Ϻ��� �����ϴ� ������ ������, ��ü �ð����� ���� ������� ��ü
+                    reservations.push_back({admin_id, room, to_string(day), start, end});
+                    ofstream fout("reservation.txt", ios::app);
+                    fout << admin_id << "\t" << room << "\t" << start << "\t" << end << "\t" << day << endl;
+                    cout << "Ban completed.\n";
+                    break;
+                }
+            }
+            if (!roomFound) cout << ".!! Room not found\n";
+        }
+        else {
+            cout << ".!! Enter the index number in the menu.\n";
+        }
+        break;
+    }
+}
+
+
 
 // ���� ��� ���
 void cancelReservation(const string& user_id) {
@@ -298,6 +437,27 @@ int main() {
             if (user->is_admin) {
                 cout << "\n-- Main for manager --\n";
                 // ������ ����� ���� ���� �ȵ�
+                while (true){
+                    cout << "1. reservation list and change\n2. classroom situation and change\n3. logout\n>> ";
+                    string choice;
+                    cin >> choice;
+                    checkIdx(choice);
+                    if(stoi(choice) == 1){
+                        //���� ��� ��� �� ���� �Լ� ȣ��
+                        
+                    }
+                    else if (stoi(choice) == 2){
+                        //���ǽ� ���� ��� �� ���� �Լ� ȣ��
+                        showAndEditClassroom(user -> id);
+                    }
+                    else if (stoi(choice) == 3){
+                        break;
+                    }
+                    else{
+                        cout << ".!! Enter the index number in the mune.\n";
+
+                    }
+                }
             }
             else {
                 cout << "\n-- Main --\n";
