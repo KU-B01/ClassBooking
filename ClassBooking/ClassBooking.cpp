@@ -472,15 +472,95 @@ int main() {
                 }
             }
         }
+<<<<<<< HEAD
         else if (stoi(sel) == 2) {
             // È¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+=======
+        //else if (sel == 2) {
+        //    // È¸¿ø°¡ÀÔ
+        //    string id, pw;
+        //    cout << "ID: "; cin >> id;
+        //    cout << "PW: "; cin >> pw;
+        //    users.push_back({ id, pw, false });
+        //    ofstream fout("user.txt", ios::app);
+        //    fout << id << "\t" << pw << "\t0\n";
+        //    cout << "Registration complete\n";
+        //}
+        else if (sel == 2) {
+            // È¸¿ø°¡ÀÔ
+>>>>>>> 66da8d1 (feat:registration)
             string id, pw;
-            cout << "ID: "; cin >> id;
-            cout << "PW: "; cin >> pw;
-            users.push_back({ id, pw, false });
-            ofstream fout("user.txt", ios::app);
-            fout << id << "\t" << pw << "\t0\n";
-            cout << "Registration complete\n";
+            bool valid = false;
+
+            while (!valid) {
+                cout << "ID: ";
+                cin >> id;
+
+                // ID À¯È¿¼º °Ë»ç (±æÀÌ, ¹®ÀÚ Á¾·ù)
+                if (id.length() < 3 || id.length() > 20) {
+                    cout << ".!! Incorrect form: ID must be between 3 and 20 characters.\n";
+                    continue;
+                }
+
+                bool isValidId = true;
+                for (char c : id) {
+                    if (!(islower(c) || isdigit(c))) {
+                        isValidId = false;
+                        break;
+                    }
+                }
+                if (!isValidId) {
+                    cout << ".!! Incorrect form: use only lowercase Engilish and number.\n";
+                    continue;
+                }
+
+                // Áßº¹ Ã¼Å©
+                bool duplicated = false;
+                for (const auto& u : users) {
+                    if (u.id == id) {
+                        duplicated = true;
+                        break;
+                    }
+                }
+
+                if (duplicated) {
+                    cout << ".!! ID already exists.\n";
+                    continue;
+                }
+
+                // ºñ¹Ð¹øÈ£ ÀÔ·Â
+                cout << "PW: ";
+                cin >> pw;
+
+                // ºñ¹Ð¹øÈ£ À¯È¿¼º °Ë»ç
+                if (pw.length() < 4 || pw.length() > 20) {
+                    cout << ".!! Incorrect form: password must be 4~20 characters.\n";
+                    continue;
+                }
+                if (pw.find(' ') != string::npos) {
+                    cout << ".!! Incorrect form: space not allowed in password.\n";
+                    continue;
+                }
+
+                bool hasAlpha = false, hasDigit = false;
+                for (char c : pw) {
+                    if (isalpha(c)) hasAlpha = true;
+                    if (isdigit(c)) hasDigit = true;
+                }
+
+                if (!hasAlpha || !hasDigit) {
+                    cout << ".!! Incorrect form: password must include alphabet and number.\n";
+                    continue;
+                }
+
+                // Åë°ú ½Ã µî·Ï
+                valid = true;
+                users.push_back({ id, pw, false });
+                ofstream fout("user.txt", ios::app);
+                fout << id << "\t" << pw << "\t0\n";
+                fout.close();
+                cout << "Registration complete\n";
+            }
         }
         else if (stoi(sel) == 3) {
             // ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
