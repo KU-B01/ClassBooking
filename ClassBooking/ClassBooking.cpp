@@ -233,7 +233,7 @@ void printClassroomList() {
 
 // 강의실 시간표 출력함, 테스트 용으로 구현한거라 보완 필요
 void printTimeTable(const string& room) {
-    cout << "      ";
+    cout << "\n             ";
     for (auto& day : weekdays) cout << setw(6) << day;
     cout << endl;
     for (int t = 0; t < 9; ++t) {
