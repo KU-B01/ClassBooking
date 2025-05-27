@@ -19,7 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="admin.cpp" />
     <ClCompile Include="ClassBooking.cpp" />
+    <ClCompile Include="classroom.cpp" />
+    <ClCompile Include="models.cpp" />
+    <ClCompile Include="reservation.cpp" />
+    <ClCompile Include="tempCodeRunnerFile.cpp" />
+    <ClCompile Include="user.cpp" />
+    <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="util.hpp" />
