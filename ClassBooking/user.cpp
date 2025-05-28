@@ -27,52 +27,56 @@ string InputUser() {
 // user.txt에서 사용자 목록을 불러옴
 bool loadUsers()
 {
-    ifstream fin("user.txt"); // .cpp용
+    std::ifstream fin("user.txt");
 
     if (!fin)
     {
-        cerr << "[Warning] user.txt file not found. Creating empty user.txt...\n";
-        ofstream fout("user.txt");
+        std::cerr << "[Warning] user.txt file not found. Creating empty user.txt...\n";
+        std::ofstream fout("user.txt");
         if (!fout)
         {
-            cerr << "[Error] Failed to create user.txt\n";
+            std::cerr << "[Error] Failed to create user.txt\n";
             exit(1);
         }
         fout.close();
-        // 파일 만들어주고 진행
     }
 
-    string id, pw;
-    int admin;
-    map<string, bool> id_check;
+    std::string id, pw;
+    // 2차 구현에서 active 추가
+    int admin, active;
+    std::map<std::string, bool> id_check;
 
-    while (fin >> id >> pw >> admin)
+    while (fin >> id >> pw >> admin >> active)
     {
         if (!isValidID(id))
         {
-            cerr << "[Error] Invalid ID format detected in user.txt -> " << id << endl;
+            std::cerr << "[Error] Invalid ID format detected in user.txt -> " << id << "\n";
             exit(1);
         }
 
         if (!isValidPassword(pw))
         {
-            cerr << "[Error] Invalid Password format detected in user.txt -> " << pw << endl;
+            std::cerr << "[Error] Invalid Password format detected in user.txt -> " << pw << "\n";
             exit(1);
         }
 
         if (id_check[id])
         {
-            cerr << "[Error] Duplicate ID detected in user.txt -> " << id << endl;
+            std::cerr << "[Error] Duplicate ID detected in user.txt -> " << id << "\n";
             exit(1);
         }
         id_check[id] = true;
 
         bool isAdmin = (admin != 0);
-        users.push_back({id, pw, isAdmin});
+        // 2차 구현 isActive
+        bool isActive = (active != 0);
+        users.push_back({id, pw, isAdmin, isActive});
     }
+
     fin.close();
 
-    users.push_back({"admin1", "admin123", true});
+    // 고정 관리자 계정
+    users.push_back({"admin1", "admin123", true, true});
 
     return true;
 }
@@ -97,7 +101,7 @@ User* login() {
 bool logout()
 {
     string input;
-    cout << "Would you like to log out? ";
+    cout << "Would you like to log out? (Y/N) ";
     cin >> input;
 
     if (input == "Y")
@@ -141,9 +145,11 @@ void registerUser() {
         }
 
         valid = true;
-        users.push_back({id, pw, false});
+        // 2차 구현 isActive default로 true
+        users.push_back({id, pw, false, true});
         ofstream fout("user.txt", ios::app);
-        fout << id << "\t" << pw << "\t0\n";
+        // 2차 구현 isActive true
+        fout << id << "\t" << pw << "\t0\t1\n";
         fout.close();
         cout << "Registration complete.\n";
     }

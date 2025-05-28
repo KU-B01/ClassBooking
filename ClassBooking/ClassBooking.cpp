@@ -10,6 +10,7 @@
 #include "classroom.hpp"
 #include "reservation.hpp"
 #include "user.hpp"
+#include "time.hpp"
 
 #include <iostream>  // 입출력 기능 사용
 #include <fstream>   // 파일 입출력 사용
@@ -26,6 +27,7 @@
 // 프로그램 시작
 int main()
 {
+    loadTime();
     loadUsers();
     loadClassrooms();
     loadReservations();

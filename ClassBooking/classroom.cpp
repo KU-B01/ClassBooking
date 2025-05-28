@@ -91,7 +91,7 @@ bool loadClassrooms()
         try
         {
             int roomNum = stoi(room);
-            if (roomNum < 101 || roomNum > 1909)
+            if (roomNum < 101 || roomNum > 999)
             {
                 cerr << "[Error] Line " << lineNum << ": Classroom number must be between 101 and 1909. (got " << roomNum << ")\n";
                 exit(1);

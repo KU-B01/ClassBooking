@@ -3,6 +3,7 @@
 #include "util.hpp"
 #include "classroom.hpp"
 #include "user.hpp"
+#include "time.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -175,6 +176,11 @@ bool reserveClassroom(const std::string user_id)
             cout << ".!! General users can only reserve exactly 1 hour.\n";
             continue;
         }
+        // 2차 구현 부분 time.cpp
+        if (!is_admin && isBeforeVirtualTime(day, start)) {
+            cout << ".!! Cannot reserve time earlier than current virtual time.\n";
+            return false;
+        }
 
         break;
     }
@@ -248,7 +254,7 @@ bool cancelReservation(const string& user_id) {
     bool flag = false; // 루프 돌리기
     vector<int> indices;
     int reservation_number = 0; // 인덱스 유효 검사용
-    for (int i = 0; i < reservations.size(); ++i)
+    for (size_t i = 0; i < reservations.size(); ++i)
     {
         if (reservations[i].user_id == user_id)
         {

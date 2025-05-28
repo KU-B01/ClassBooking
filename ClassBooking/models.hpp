@@ -9,6 +9,9 @@ struct User {
     std::string id;
     std::string password;
     bool is_admin;
+
+    // 2차 구현
+    bool is_active;
 };
 
 // 예약 정보
