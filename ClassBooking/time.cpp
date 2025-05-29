@@ -18,7 +18,7 @@ std::tm parseTime(const std::string& timeStr) {
 }
 
 bool isTimeEarlier(const std::tm& t1, const std::tm& t2) {
-    return std::mktime(const_cast<std::tm*>(&t1)) < std::mktime(const_cast<std::tm*>(&t2));
+    return std::mktime(const_cast<std::tm*>(&t1)) <= std::mktime(const_cast<std::tm*>(&t2));
 }
 
 std::string loadPreviousTime() {

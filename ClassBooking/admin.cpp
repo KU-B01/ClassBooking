@@ -193,6 +193,20 @@ void handleClassroomAccess(const string &admin_id, bool is_accept_mode)
         break;
     }
 
+    // 1차 구현 중 빠진 부분 사용자 예약이 존재하면 강의실 금지 불가
+    if (!is_accept_mode)
+    {
+        for (const auto &r : reservations)
+        {
+            if (r.user_id != admin_id && r.room == room && r.day == day &&
+                isTimeOverlap(r.start_time, r.end_time, start, end))
+            {
+                cout << ".!! This time is already reserved by a user. Cannot ban.\n";
+                return;
+            }
+        }
+    }
+
     // 허용 시간 설정이면 기존 금지 시간에서 해당 시간 제거
     if (is_accept_mode)
     {
@@ -281,4 +295,111 @@ void handleClassroomAccess(const string &admin_id, bool is_accept_mode)
              << r.start_time << "\t" << r.end_time << "\t" << r.day << endl;
     }
     fout.close();
+}
+
+
+
+// 2차 구현 사용자 밴 관리자 프롬프트 메뉴
+void UserBanManagementMenu() {
+    cout << "1. accept user\n";
+    cout << "2. ban user\n";
+    cout << "3. return\n>> ";
+
+    int idx = getValidatedMenuIndex("menu", 1, 3);
+
+    if (idx == 1) acceptUser();
+    else if (idx == 2) banUser();
+    else if (idx == 3) return;
+}
+
+// 2차 구현 사용자 밴 해제
+void acceptUser() {
+    while (true) {
+        cout << "\nenter user ID to accept\nuser ID: ";
+        string input;
+        getline(cin, input);
+        input = trimWhitespace(input);
+
+        if (!isValidID(input)) {
+            cout << ".!! Check validity of user ID.\n";
+            continue;
+        }
+
+        bool found = false;
+        for (auto& u : users) {
+            if (!u.is_admin && u.id == input) {
+                found = true;
+                if (u.is_active) {
+                    cout << ".!! Selected user's permission is already accepted.\n";
+                    continue;
+                }
+                u.is_active = true;
+                cout << "User " << u.id << " successfully accepted.\n";
+
+                ofstream fout("user.txt");
+                for (const auto& usr : users) {
+                    if (!usr.is_admin) {
+                        fout << usr.id << "\t" << usr.password << "\t0\t" << (usr.is_active ? 1 : 0) << "\n";
+                    }
+                }
+                fout.close();
+                return;
+            }
+        }
+
+        if (!found) {
+            cout << ".!! User ID doesn't exist in user list.\n";
+        }
+    }
+}
+
+// 2차 구현 사용자 밴
+void banUser() {
+    while (true) {
+        cout << "\nenter user ID to ban\nuser ID: ";
+        string input;
+        getline(cin, input);
+        input = trimWhitespace(input);
+
+        if (!isValidID(input)) {
+            cout << ".!! Check validity of user ID.\n";
+            continue;
+        }
+
+        bool found = false;
+        for (auto& u : users) {
+            if (!u.is_admin && u.id == input) {
+                found = true;
+                if (!u.is_active) {
+                    cout << ".!! Selected user's permission is already banned.\n";
+                    continue;
+                }
+                u.is_active = false;
+                cout << "User " << u.id << " successfully banned.\n";
+
+                ofstream fout("user.txt");
+                for (const auto& usr : users) {
+                    if (!usr.is_admin) {
+                        fout << usr.id << "\t" << usr.password << "\t0\t" << (usr.is_active ? 1 : 0) << "\n";
+                    }
+                }
+                fout.close();
+                return;
+            }
+        }
+
+        if (!found) {
+            cout << ".!! User ID doesn't exist in user list.\n";
+        }
+    }
+}
+
+// 2차 구현 사용자 밴 여부 확인
+bool isUserBanned(const string& id) {
+    for (const auto& u : users) {
+        if (u.id == id && !u.is_admin) {
+            return !u.is_active;
+        }
+    }
+    return false;
 }

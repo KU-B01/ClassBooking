@@ -4,6 +4,7 @@
 #include "classroom.hpp"
 #include "user.hpp"
 #include "time.hpp"
+#include "admin.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -93,6 +94,12 @@ bool reserveClassroom(const std::string user_id)
 
     while (true)
     {
+        // 2차 구현 사용자 밴 여부 확인
+        if (isUserBanned(local_id)) {
+        cout << "This account can not reserve.\n\n";
+        return false;
+        }
+        
         is_admin = false;
 
         // --- 사용자 유형 확인 (admin 여부) ---

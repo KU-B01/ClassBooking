@@ -27,6 +27,7 @@
 // 프로그램 시작
 int main()
 {
+    // 2차 구현 loadTime() 추가
     loadTime();
     loadUsers();
     loadClassrooms();
@@ -53,15 +54,23 @@ int main()
                     cout << "-- Main for manager --\n";
                     cout << "1. reservation list and change\n";
                     cout << "2. classroom situation and change\n";
-                    cout << "3. logout\n>> ";
+                    // 2차 구현
+                    cout << "3. accept/ban user\n";
+                    // 2차 구현
+                    cout << "4. add/delete classroom\n";
+                    cout << "5. logout\n>> ";
                     
-                    int admin_choice = getValidatedMenuIndex("menu", 1, 3);
+                    int admin_choice = getValidatedMenuIndex("menu", 1, 5);
 
                     if (admin_choice == 1)
                         reservationManagementMenu(); // reservation list and change
                     else if (admin_choice == 2)
                         classroomManagementMenu(user->id); // classroom situation and change
-                    else if (admin_choice == 3 && logout())
+                    // 2차 구현
+                    else if (admin_choice == 3)
+                        UserBanManagementMenu();
+                    
+                    else if (admin_choice == 5 && logout())
                         break;
                 }
             }

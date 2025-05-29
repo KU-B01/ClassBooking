@@ -13,5 +13,12 @@ void classroomManagementMenu(const string &admin_id);
 
 void reservation_check_admin1();
 
+// 2차 구현 사용자 밴
+void UserBanManagementMenu();
+void acceptUser();
+void banUser();
+bool isUserBanned(const string& id);
+
+
 
 #endif
