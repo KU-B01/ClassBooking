@@ -41,7 +41,7 @@ std::string getVirtualTimeFromUser() {
     std::regex pattern(R"(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$)");
 
     while (true) {
-        std::cout << "Enter virtual time (YYYY-MM-DD HH:MM): ";
+        std::cout << "Enter Current time (YYYY-MM-DD HH:MM): ";
         std::getline(std::cin, input);
         if (std::regex_match(input, pattern)) return input;
         std::cout << ".!! Incorrect format.\n";
@@ -71,31 +71,52 @@ void resetReservationsIfNewWeek(const std::tm& prev, const std::tm& curr) {
 
 void loadTime() {
     std::ifstream fin("time.txt");
-    bool firstRun = !fin;
-    fin.close();
-
-    std::string prev = loadPreviousTime();
-    if (prev.empty()) {
-        std::cerr << "[Warning] time.txt not found or is empty.\n";
-        firstRun = true;
-
+    if (!fin) {
+        std::cerr << "[Warning] time.txt not found. It will be created after virtual time input.\n";
         std::ofstream fout("time.txt");
         if (!fout) {
             std::cerr << "[Error] Failed to create time.txt\n";
             exit(1);
         }
         fout.close();
+        return;
+    }
+
+    std::string prev;
+    getline(fin, prev);
+    fin.close();
+
+    if (prev.empty()) {
+        std::cerr << "[Warning] time.txt is empty. Virtual time will be requested.\n";
+        return;
+    }
+
+    try {
+        parseTime(prev);  // 유효성 검사만
+    } catch (...) {
+        std::cerr << "[Error] Invalid time format in time.txt. Exiting...\n";
+        exit(1);
+    }
+};
+
+void handleVirtualTime() {
+    std::string prev = loadPreviousTime();
+
+    if (!prev.empty()) {
+        std::cout << "last time: " << prev << "\n";
     }
 
     g_virtualTimeStr = getVirtualTimeFromUser();
     g_virtualTimeTm = parseTime(g_virtualTimeStr);
 
-    if (!firstRun) {
+    if (!prev.empty()) {
         std::tm prevTm = parseTime(prev);
+
         if (isTimeEarlier(g_virtualTimeTm, prevTm)) {
             std::cerr << ".!! Cannot go back in time. Exiting...\n";
             exit(1);
         }
+
         resetReservationsIfNewWeek(prevTm, g_virtualTimeTm);
     }
 

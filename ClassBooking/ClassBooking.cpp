@@ -45,6 +45,9 @@ int main()
             User *user = nullptr;
             while (!user)
                 user = login();
+            
+            // 2차 구현    
+            handleVirtualTime();
 
             if (user->is_admin)
             {

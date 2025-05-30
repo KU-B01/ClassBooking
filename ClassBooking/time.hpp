@@ -20,7 +20,12 @@ std::tm parseTime(const std::string& timeStr);
 bool isTimeEarlier(const std::tm& t1, const std::tm& t2);
 
 // 가상 시간 전체 로드 및 검사 함수 (main에서 무결성 용)
+// time.txt 있는지 확인 없으면 만들고, 있는데 비어있으면 비어있다고 말해주고,
+// 이상한 것 쓰여있으면 에러 출력하고 exit
 void loadTime();
+
+// 로그인 직후 가상시각 받는 함수, 시간 유효성 검사
+void handleVirtualTime();
 
 // 전역 가상 시간 (문자열 + 구조체)
 extern std::string g_virtualTimeStr;
