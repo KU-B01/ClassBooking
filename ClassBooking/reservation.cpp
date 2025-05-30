@@ -203,25 +203,85 @@ bool reserveClassroom(const std::string user_id)
         break;
     }
 
-    // --- 하루 총합 3시간 초과 여부 검사 ---
-    int totalReservedMinutes = 0;
+    int newStartHour = stoi(start.substr(0, 2));
+    int newEndHour = stoi(end.substr(0, 2));
+    int newDuration = newEndHour - newStartHour;
+
+    // --- 2차 구현 주간 총합 3시간 --> 7시간 초과 여부 검사 ---
+    int totalReservedHours = 0;
     for (const auto &r : reservations)
     {
         if (r.user_id == local_id)
         {
             int startHour = stoi(r.start_time.substr(0, 2));
             int endHour = stoi(r.end_time.substr(0, 2));
-            totalReservedMinutes += (endHour - startHour);
+            totalReservedHours += (endHour - startHour);
         }
     }
 
-    int newStartHour = stoi(start.substr(0, 2));
-    int newEndHour = stoi(end.substr(0, 2));
-    int newDuration = newEndHour - newStartHour;
-
-    if (!is_admin && (totalReservedMinutes + newDuration > 3))
+    if (!is_admin && (totalReservedHours + newDuration > 7))
     {
-        cout << ".!! You exceeded the maximum reservation time.\n";
+        cout << ".!! You exceeded the weekly reservation limit of 7 hours.\n";
+        return false;
+    }
+
+    // 2차 구현 일간 총합 5시간 초과 여부 검사
+    int dailyReservedHours = 0;
+    for (const auto &r : reservations)
+    {
+        if (r.user_id == local_id && r.day == day)
+        {
+            int startHour = stoi(r.start_time.substr(0, 2));
+            int endHour = stoi(r.end_time.substr(0, 2));
+            dailyReservedHours += (endHour - startHour);
+        }
+    }
+
+    if (!is_admin && (dailyReservedHours + newDuration > 5))
+    {
+        cout << ".!! You exceeded the daily reservation limit of 5 hours.\n";
+        return false;
+    }
+
+    // 2차 구현 동일 강의실 연속 3시간 초과 여부 검사
+    // 이건 어떻게 막아야할 지 몰라서 100% AI 활용했습니다.
+    // 더 쉬운 방법이 있다면 트라이해보시는 게 좋을 것 같습니다.
+    std::vector<std::pair<int, int>> timeBlocks;
+    for (const auto &r : reservations)
+    {
+        if (r.user_id == local_id && r.day == day && r.room == room)
+        {
+            int s = stoi(r.start_time.substr(0, 2));
+            int e = stoi(r.end_time.substr(0, 2));
+            timeBlocks.emplace_back(s, e);
+        }
+    }
+    timeBlocks.emplace_back(newStartHour, newEndHour);
+    sort(timeBlocks.begin(), timeBlocks.end());
+
+    int streakStart = timeBlocks[0].first;
+    int streakEnd = timeBlocks[0].second;
+    int maxStreak = 0;
+    for (size_t i = 1; i < timeBlocks.size(); ++i)
+    {
+        int currStart = timeBlocks[i].first;
+        int currEnd = timeBlocks[i].second;
+
+        if (currStart == streakEnd)
+        {
+            streakEnd = currEnd;
+        }
+        else
+        {
+            maxStreak = max(maxStreak, streakEnd - streakStart);
+            streakStart = currStart;
+            streakEnd = currEnd;
+        }
+    }
+    maxStreak = max(maxStreak, streakEnd - streakStart);
+    if (!is_admin && maxStreak > 3)
+    {
+        cout << ".!! You cannot reserve more than 3 consecutive hours in the same room.\n";
         return false;
     }
 

@@ -1,1 +1,2 @@
 user1	user123	0	0
+user2	user123	0	1
