@@ -148,17 +148,6 @@ bool isValidPassword(const string &pw)
 {
     if (pw.find(' ') != string::npos)
         return false;
-    if (pw.length() < 4 || pw.length() > 20)
-        return false;
-
-    bool hasAlpha = false, hasDigit = false;
-    for (char c : pw)
-    {
-        if (isalpha(c))
-            hasAlpha = true;
-        if (isdigit(c))
-            hasDigit = true;
-    }
-
-    return hasAlpha && hasDigit;
+    const string pwPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d~!@#$%^&*()]{4,20}$";
+    return regex_match(pw, regex(pwPattern));
 }
