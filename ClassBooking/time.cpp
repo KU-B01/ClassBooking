@@ -1,4 +1,5 @@
 // 전부 2차 구현
+#define _CRT_SECURE_NO_WARNINGS
 #include "time.hpp"
 #include "models.hpp"
 #include <iostream>

@@ -136,11 +136,10 @@ bool reserveClassroom(const std::string user_id)
 
         cout << "Enter a number corresponding to the day of the week\n(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
         cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        
+        while (cin.peek() == '\n')
+            cin.ignore(); // 개행만 남은 버퍼 날리기
         getline(cin, day);
-        if (checkIdx("day", day))
-            continue;
+        if (checkIdx("day", day))   continue;
 
         int dayInt = stoi(day);
         if (dayInt < 1 || dayInt > 5)
@@ -151,9 +150,10 @@ bool reserveClassroom(const std::string user_id)
 
         // 2차 구현 강의실 예약 시 가상 시각의 요일보다 빠른 요일이 들어왔을 때 차단
         int currentWday = getCurrentWeekdayIndex();  // 0 = Mon, ..., 4 = Fri
+        cout << currentWday << " " << dayInt - 1 << endl;
         if (!is_admin && (dayInt - 1) < currentWday)
         {
-            cout << ".!! It is already past time. You can’t reserve on that day.\n";
+            cout << ".!! It is already past time. You can\`t reserve on that day.\n";
             continue;
         } 
         break;

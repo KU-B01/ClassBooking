@@ -25,6 +25,7 @@
     <ClCompile Include="models.cpp" />
     <ClCompile Include="reservation.cpp" />
     <ClCompile Include="tempCodeRunnerFile.cpp" />
+    <ClCompile Include="time.cpp" />
     <ClCompile Include="user.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
