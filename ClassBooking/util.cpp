@@ -151,3 +151,13 @@ bool isValidPassword(const string &pw)
     const string pwPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d~!@#$%^&*()]{4,20}$";
     return regex_match(pw, regex(pwPattern));
 }
+
+// 2차 구현 유저 ban 여부 확인
+bool isUserBanned(const string& id) {
+    for (const auto& u : users) {
+        if (u.id == id && !u.is_admin) {
+            return !u.is_active;
+        }
+    }
+    return false;
+}

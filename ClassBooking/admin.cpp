@@ -5,6 +5,7 @@
 #include "classroom.hpp"
 #include "reservation.hpp"
 #include "user.hpp"
+#include "time.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -19,9 +20,11 @@ void reservationManagementMenu()
 {
     cout << "1. register reservation\n";
     cout << "2. check reservation\n";
-    cout << "3. delete reservation\n>> ";
+    cout << "3. delete reservation\n";
+    // 2차 구현 return
+    cout << "4. return\n>> ";
     
-    int idx = getValidatedMenuIndex("menu", 1, 3);
+    int idx = getValidatedMenuIndex("menu", 1, 4);
 
 
     if (idx == 1){
@@ -31,6 +34,10 @@ void reservationManagementMenu()
         reservation_check_admin1();
     else if (idx == 3)
         cancelReservation(InputUser());
+    
+    // 2차 구현 return
+    else if (idx == 4)
+        return;
 }
 
 // 관리자: 강의실 예약 허용/금지 메뉴
@@ -38,13 +45,19 @@ void classroomManagementMenu(const string &admin_id)
 {
     cout << "1. check reservation\n";
     cout << "2. accept reservation\n";
-    cout << "3. ban reservation\n>> ";
-    int idx = getValidatedMenuIndex("menu", 1, 3);
+    cout << "3. ban reservation\n";
+    // 2차 구현 return
+    cout << "4. return\n>>";
+    
+    int idx = getValidatedMenuIndex("menu", 1, 4);
 
     if (idx == 1)
         viewClassroomTimetable();
     else if (idx == 2 || idx == 3)
         handleClassroomAccess(admin_id, idx == 2);
+    // 2차 구현 return
+    else if (idx == 4)
+        return;
 }
 
 // 모든 예약 내역 출력 (관리자용)
@@ -402,3 +415,126 @@ bool isUserBanned(const string& id) {
     }
     return false;
 }
+
+// 2차 구현 강의실 추가/삭제
+void ClassroomEditManagementMenu() {
+    while (true) {
+        cout << "\n-- Classroom Add/Delete Menu --\n";
+        cout << "1. add classroom\n";
+        cout << "2. delete classroom\n";
+        cout << "3. return\n>> ";
+
+        int idx = getValidatedMenuIndex("menu", 1, 3);
+
+        if (idx == 1) {
+            addClassroom();
+        } else if (idx == 2) {
+            deleteClassroom();
+        } else if (idx == 3) {
+            return;
+        }
+    }
+}
+
+// 2차 구현 강의실 추가
+void addClassroom() {
+    while (true) {
+        cout << "classroom number: ";
+        string room;
+        getline(cin, room);
+        room = trim(room);
+
+        try {
+            int roomNum = stoi(room);
+            if (roomNum < 101 || roomNum > 999) {
+                cout << "Classroom numbers must be 101-999.\n";
+                continue;
+            }
+        } catch (...) {
+            cout << "Classroom numbers must be 101-999.\n";
+            continue;
+        }
+
+        if (isExistRoomNumber(room)) {
+            cout << "The classroom you entered already exists.\n";
+            continue;
+        }
+
+        ofstream fout("classroom.txt", ios::app);
+        if (!fout) {
+            cerr << "[Error] Failed to open classroom.txt for writing.\n";
+            return;
+        }
+        fout << room << " 1 09:00 18:00\n";
+        fout.close();
+
+        classrooms.push_back({room, true, "09:00", "18:00"});
+
+        cout << "The classroom successfully added.\n";
+        return;
+    }
+};
+
+// 2차 구현 강의실 삭제
+void deleteClassroom() {
+    while (true) {
+        cout << "classroom number: ";
+        string room;
+        getline(cin, room);
+        room = trim(room);
+
+        try {
+            int roomNum = stoi(room);
+            if (roomNum < 101 || roomNum > 999) {
+                cout << "Classroom numbers must be 101-999.\n";
+                continue;
+            }
+        } catch (...) {
+            cout << "Classroom numbers must be 101-999.\n";
+            continue;
+        }
+
+        if (!isExistRoomNumber(room)) {
+            cout << "The classroom you entered doesn’t exist.\n";
+            continue;
+        }
+
+        // 예약 존재 여부 검사 로직 만약 미래 사용자의 예약이 있다면 강의실 삭제 불가가
+        bool hasFutureReservation = false;
+        for (const auto& r : reservations) {
+            if (r.room == room && !isBeforeVirtualTime(r.day, r.start_time)) {
+                hasFutureReservation = true;
+                break;
+            }
+        }
+
+        if (hasFutureReservation) {
+            cout << ".!! Future reservation exists for this classroom. Cannot delete.\n";
+            return;
+        }
+
+        ifstream fin("classroom.txt");
+        ofstream fout("classroom_tmp.txt");
+
+        string line;
+        while (getline(fin, line)) {
+            if (line.find(room + " ") != 0) {
+                fout << line << "\n";
+            }
+        }
+        fin.close();
+        fout.close();
+
+        remove("classroom.txt");
+        rename("classroom_tmp.txt", "classroom.txt");
+
+        classrooms.erase(
+            remove_if(classrooms.begin(), classrooms.end(),
+                      [&](const Classroom& c) { return c.room == room; }),
+            classrooms.end()
+        );
+
+        cout << "The classroom successfully deleted.\n";
+        return;
+    };
+};
