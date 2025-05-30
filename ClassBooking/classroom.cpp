@@ -132,6 +132,7 @@ bool loadClassrooms()
 void printClassroomList() {
     map<string, vector<string>> floorMap;
 
+    // 층별로 분류
     for (const auto& c : classrooms) {
         if (c.room.length() >= 1) {
             string floor = c.room.substr(0, 1); // "3" → 3층
@@ -139,7 +140,10 @@ void printClassroomList() {
         }
     }
 
-    for (const auto& pair : floorMap) {
+    // 오름차순 정렬 + 출력
+    for (auto& pair : floorMap) {
+        sort(pair.second.begin(), pair.second.end());
+
         cout << pair.first << "F: ";
         for (size_t i = 0; i < pair.second.size(); ++i) {
             cout << pair.second[i];
@@ -148,6 +152,7 @@ void printClassroomList() {
         cout << endl;
     }
 }
+
 
 // 특정 강의실의 시간표 출력
 void printTimeTable(const string& room) {
