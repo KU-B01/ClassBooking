@@ -72,7 +72,7 @@ void resetReservationsIfNewWeek(const std::tm& prev, const std::tm& curr) {
 void loadTime() {
     std::ifstream fin("time.txt");
     if (!fin) {
-        std::cerr << "[Warning] time.txt not found. It will be created after virtual time input.\n";
+        std::cerr << "[Warning] time.txt not found. Creating empty time.txt\n";
         std::ofstream fout("time.txt");
         if (!fout) {
             std::cerr << "[Error] Failed to create time.txt\n";

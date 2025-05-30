@@ -201,7 +201,7 @@ bool reserveClassroom(const std::string user_id)
         // 2차 구현 부분 time.cpp
         if (!is_admin && isBeforeVirtualTime(day, start)) {
             cout << ".!! Cannot reserve time earlier than current virtual time.\n";
-            return false;
+            continue;
         }
 
         break;
