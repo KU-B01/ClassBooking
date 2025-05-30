@@ -25,8 +25,7 @@ void reservationManagementMenu()
 
 
     if (idx == 1){
-        string uid = InputUser();
-        reserveClassroom(uid);
+        reserveClassroom(InputUser());
     }   
     else if (idx == 2)
         reservation_check_admin1();
