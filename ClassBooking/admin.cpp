@@ -346,7 +346,7 @@ void acceptUser() {
                     continue;
                 }
                 u.is_active = true;
-                cout << "User " << u.id << " successfully accepted.\n";
+                cout << "User " << u.id << " successfully accepted.\n\n";
 
                 ofstream fout("user.txt");
                 for (const auto& usr : users) {
@@ -387,7 +387,7 @@ void banUser() {
                     continue;
                 }
                 u.is_active = false;
-                cout << "User " << u.id << " successfully banned.\n";
+                cout << "User " << u.id << " successfully banned.\n\n";
 
                 ofstream fout("user.txt");
                 for (const auto& usr : users) {
