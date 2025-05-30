@@ -1,6 +1,7 @@
 #ifndef UTIL_HPP
 #define UTIL_HPP
 
+using namespace std;
 #include <string>
 #include <vector>
 #include <regex>
@@ -24,7 +25,7 @@ bool isTimeOverlap(const std::string& s1, const std::string& e1,
                    const std::string& s2, const std::string& e2); // 시간 겹침 여부
 
 // ======= 인덱스 검사 =======
-bool checkIdx(const std::string& callLocation, const std::string& inputIdx);  // 위치 기반
+bool checkIdx(const string &callLocation, const string &inputIdx);  // 위치 기반
 void printIdxErrorMessage(const std::string& context);                         // 에러 메시지
 
 // ======= ID / PW 유효성 =======

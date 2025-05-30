@@ -128,8 +128,7 @@ bool reserveClassroom(const std::string user_id)
     while (true)
     {
         cout << "Enter a number corresponding to the day of the week\n(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        
         
         getline(cin, day);
         if (checkIdx("day", day))
