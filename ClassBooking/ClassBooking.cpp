@@ -66,10 +66,13 @@ int main()
                         reservationManagementMenu(); // reservation list and change
                     else if (admin_choice == 2)
                         classroomManagementMenu(user->id); // classroom situation and change
-                    // 2차 구현
+                    // 2차 구현 
                     else if (admin_choice == 3)
                         UserBanManagementMenu();
-                    
+                    // 2차 구현
+                    else if (admin_choice == 4)
+                        ClassroomEditManagementMenu();
+
                     else if (admin_choice == 5 && logout())
                         break;
                 }

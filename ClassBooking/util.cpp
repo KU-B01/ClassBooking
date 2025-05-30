@@ -102,7 +102,8 @@ int getValidatedMenuIndex(const string& context, int min, int max)
             cin.ignore();
         getline(cin, input);
 
-        if(checkIdx(context, input)) continue;
+        //if(checkIdx(context, input)) continue;
+        if (checkIdx(input)) continue;
 
         int idx = stoi(input);
         if(idx < min || idx > max) {
@@ -160,4 +161,14 @@ bool isValidPassword(const string &pw)
     }
 
     return hasAlpha && hasDigit;
+}
+
+// 2차 구현 유저 ban 여부 확인
+bool isUserBanned(const string& id) {
+    for (const auto& u : users) {
+        if (u.id == id && !u.is_admin) {
+            return !u.is_active;
+        }
+    }
+    return false;
 }

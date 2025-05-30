@@ -19,6 +19,11 @@ void acceptUser();
 void banUser();
 bool isUserBanned(const string& id);
 
+// 2차 구현 강의실 추가/삭제
+void ClassroomEditManagementMenu();
+void addClassroom();
+void deleteClassroom();
+
 
 
 #endif
