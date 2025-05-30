@@ -102,7 +102,7 @@ int getValidatedMenuIndex(const string& context, int min, int max)
             cin.ignore();
         getline(cin, input);
 
-        if (checkIdx(context, input)) continue;
+        if(checkIdx(context, input)) continue;
 
         int idx = stoi(input);
         if(idx < min || idx > max) {
@@ -114,7 +114,7 @@ int getValidatedMenuIndex(const string& context, int min, int max)
 }
 
 // 인덱스 입력 유효성 검사: 한 자리 숫자인지 판단
-bool checkIdx(const string callLocation, const string &inputIdx)
+bool checkIdx(const string &callLocation, const string &inputIdx)
 {
     string cleaned = removeWhitespace(inputIdx);
     if (cleaned.length() == 1 && isdigit(cleaned[0]))
@@ -149,14 +149,4 @@ bool isValidPassword(const string &pw)
         return false;
     const string pwPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d~!@#$%^&*()]{4,20}$";
     return regex_match(pw, regex(pwPattern));
-}
-
-// 2차 구현 유저 ban 여부 확인
-bool isUserBanned(const string& id) {
-    for (const auto& u : users) {
-        if (u.id == id && !u.is_admin) {
-            return !u.is_active;
-        }
-    }
-    return false;
-}
+};

@@ -124,9 +124,16 @@ bool reserveClassroom(const std::string user_id)
 
     string room = InputClassroom();
 
+    bool firstLoop = true;
     // --- 요일 입력 유효성 검사 ---
     while (true)
     {
+        //버퍼 비우기
+        if (!firstLoop)
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        firstLoop = false;
+
+
         cout << "Enter a number corresponding to the day of the week\n(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
