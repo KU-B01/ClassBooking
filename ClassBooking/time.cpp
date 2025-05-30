@@ -100,7 +100,7 @@ void loadTime() {
     }
 };
 
-void handleVirtualTime() {
+void VirtualTime() {
     std::string prev = loadPreviousTime();
 
     if (!prev.empty()) {

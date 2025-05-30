@@ -25,7 +25,7 @@ bool isTimeEarlier(const std::tm& t1, const std::tm& t2);
 void loadTime();
 
 // 로그인 직후 가상시각 받는 함수, 시간 유효성 검사
-void handleVirtualTime();
+void VirtualTime();
 
 // 전역 가상 시간 (문자열 + 구조체)
 extern std::string g_virtualTimeStr;

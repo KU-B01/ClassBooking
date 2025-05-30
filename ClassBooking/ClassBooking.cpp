@@ -47,7 +47,7 @@ int main()
                 user = login();
             
             // 2차 구현    
-            handleVirtualTime();
+            VirtualTime();
 
             if (user->is_admin)
             {
