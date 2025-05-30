@@ -7,6 +7,8 @@
 #include <fstream>
 #include <regex>
 #include <map>
+#include "classroom.hpp"
+#include "reservation.hpp"
 
 using namespace std;
 
@@ -156,3 +158,25 @@ void registerUser() {
     }
 }
 
+// 2차 구현: 사용자 프롬프트 user.cpp로 이동
+bool userPrompt(const string& user_id) {
+	cout << "-- Main --\n";
+	cout << "1. classroom list\n";
+	cout << "2. reserve classroom\n";
+	cout << "3. cancel reservation\n";
+	cout << "4. logout\n>> ";
+	int choice = getValidatedMenuIndex("menu", 1, 4);
+	if (choice == 1) {
+		viewClassroomTimetable(); // classroom list
+	}
+	else if (choice == 2) {
+		reserveClassroom(user_id); // reserve classroom
+	}
+	else if (choice == 3) {
+		cancelReservation(user_id); // cancel reservation
+	}
+	else if (choice == 4) {
+        if (logout())    return false; // 로그아웃
+	}
+	return true; // 계속 진행
+}

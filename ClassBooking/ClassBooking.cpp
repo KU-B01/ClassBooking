@@ -54,30 +54,7 @@ int main()
                 // 관리자 프롬프트
                 while (true)
                 {
-                    cout << "-- Main for manager --\n";
-                    cout << "1. reservation list and change\n";
-                    cout << "2. classroom situation and change\n";
-                    // 2차 구현
-                    cout << "3. accept/ban user\n";
-                    // 2차 구현
-                    cout << "4. add/delete classroom\n";
-                    cout << "5. logout\n>> ";
-                    
-                    int admin_choice = getValidatedMenuIndex("menu", 1, 5);
-
-                    if (admin_choice == 1)
-                        reservationManagementMenu(); // reservation list and change
-                    else if (admin_choice == 2)
-                        classroomManagementMenu(user->id); // classroom situation and change
-                    // 2차 구현 
-                    else if (admin_choice == 3)
-                        UserBanManagementMenu();
-                    // 2차 구현
-                    else if (admin_choice == 4)
-                        ClassroomEditManagementMenu();
-
-                    else if (admin_choice == 5 && logout())
-                        break;
+                    if (!managerPrompt(user->id)) break; // 로그아웃 시 루프 탈출
                 }
             }
             else
@@ -85,21 +62,7 @@ int main()
                 // 사용자 프롬프트
                 while (true)
                 {
-                    cout << "-- Main --\n";
-                    cout << "1. classroom list\n";
-                    cout << "2. reserve classroom\n";
-                    cout << "3. cancel reservation\n";
-                    cout << "4. logout\n>> ";
-                    int user_choice = getValidatedMenuIndex("menu", 1, 4);
-
-                    if (user_choice == 1)
-                        viewClassroomTimetable(); // classroom list
-                    else if (user_choice == 2)
-                        reserveClassroom(user->id); // reserve classroom
-                    else if (user_choice == 3)
-                        cancelReservation(user->id); // cancel reservation
-                    else if (user_choice == 4 && logout())
-                        break;
+					if (!userPrompt(user->id)) break; // 로그아웃 시 루프 탈출
                 }
             }
         }

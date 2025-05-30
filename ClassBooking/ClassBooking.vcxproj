@@ -30,6 +30,8 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="admin.hpp" />
+    <ClInclude Include="user.hpp" />
     <ClInclude Include="util.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

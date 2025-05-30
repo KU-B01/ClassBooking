@@ -5,6 +5,9 @@
 
 using namespace std;
 
+// 2차 구현: 관리자 프롬프트 (관리자 로그인 후 표시되는 메뉴)
+bool managerPrompt(const string& admin_id);
+
 // 관리자: 예약 목록 조회 및 삭제 (기능 선택 포함)
 void reservationManagementMenu();
 

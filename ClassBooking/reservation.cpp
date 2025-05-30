@@ -290,7 +290,7 @@ bool reserveClassroom(const std::string user_id)
     {
         if (r.room == room && r.day == day && isTimeOverlap(r.start_time, r.end_time, start, end))
         {
-            cout << ".!! Already reserved time\n";
+            cout << ".!! Already reserved time.\n";
             return false;
         }
     }

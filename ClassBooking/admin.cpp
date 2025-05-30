@@ -15,11 +15,38 @@
 
 using namespace std;
 
+//2차 구현: 관리자 프롬프트 admin.cpp로 이동
+bool managerPrompt(const string& admin_id)
+{
+	cout << "-- Main for manager --\n";
+	cout << "1. reservation list and change\n";
+	cout << "2. classroom situation and change\n";
+	// 2차 구현
+	cout << "3. accept/ban user\n";
+	// 2차 구현
+	cout << "4. add/delete classroom\n";
+	cout << "5. logout\n>> ";
+	int admin_choice = getValidatedMenuIndex("menu", 1, 5);
+	if (admin_choice == 1)
+		reservationManagementMenu(); // 예약 목록 관리
+	else if (admin_choice == 2)
+		classroomManagementMenu(admin_id); // 강의실 관리
+    // 2차 구현 
+	else if (admin_choice == 3)
+		UserBanManagementMenu();    // 사용자 제명 & 해제
+    // 2차 구현 
+	else if (admin_choice == 4)
+		ClassroomEditManagementMenu();  // 강의실 목록 관리
+	else if (admin_choice == 5 && logout())     return false;
+
+	return true;
+}
+
 // 관리자: 예약 목록 관리 메뉴
 void reservationManagementMenu()
 {
     cout << "1. register reservation\n";
-    cout << "2. check reservation\n";
+    cout << "2. check reservation list\n";
     cout << "3. delete reservation\n";
     // 2차 구현 return
     cout << "4. return\n>> ";
@@ -43,7 +70,7 @@ void reservationManagementMenu()
 // 관리자: 강의실 예약 허용/금지 메뉴
 void classroomManagementMenu(const string &admin_id)
 {
-    cout << "1. check reservation\n";
+    cout << "1. check reservation table\n";
     cout << "2. accept reservation\n";
     cout << "3. ban reservation\n";
     // 2차 구현 return
