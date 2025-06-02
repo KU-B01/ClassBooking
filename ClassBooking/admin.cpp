@@ -185,8 +185,11 @@ void handleClassroomAccess(const string &admin_id, bool is_accept_mode)
         cout << "enter a number corresponding to the day of the week\n"
              << "(1. Mon, 2. Tue, 3. Wed, 4. Thu, 5. Fri): ";
         getline(cin, day);
-        if (checkIdx("day", day))
-            continue;
+        if (checkIdx(day))
+        {
+			printIdxErrorMessage("day");
+			continue;
+        }
         if (stoi(day) < 1 || stoi(day) > 5)
         {
             printIdxErrorMessage("day");

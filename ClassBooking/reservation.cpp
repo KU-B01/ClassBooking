@@ -134,8 +134,11 @@ bool reserveClassroom(const std::string user_id)
             cin.ignore(); // 개행만 남은 버퍼 날리기
             
         getline(cin, day);
-        if (checkIdx("day", day))
+        if (checkIdx(day))
+        {
+            printIdxErrorMessage("day");
             continue;
+        }
 
         int dayInt = stoi(day);
         if (dayInt < 1 || dayInt > 5)
@@ -353,8 +356,11 @@ bool cancelReservation(const string& user_id) {
     while (cin.peek() == '\n')
         cin.ignore(); // 개행만 남은 버퍼 날리기
     getline(cin, choice);
-    if (checkIdx("menu", choice))
+    if (checkIdx(choice)) 
+    {
+		printIdxErrorMessage("menu");
         return flag; // 인덱스 입력 유효성 검사
+    }
     int idx_r = stoi(choice);
     // cout << reservation_number << endl;
     if (idx_r < 1 || idx_r > reservation_number)
