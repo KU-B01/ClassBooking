@@ -92,34 +92,43 @@ bool isTimeOverlap(const string &s1, const string &e1,
     return !(e1 <= s2 || s1 >= e2);
 }
 
-int getValidatedMenuIndex(const string& context, int min, int max)
+int getValidatedMenuIndex(const string &context, int min, int max)
 {
     string input;
+    regex num_only(R"(\d+)");
+
     while (true)
     {
-        cin.clear();
-        while (cin.peek() == '\n')
-            cin.ignore();
-        getline(cin, input);
+        string input;
+        while (true)
+        {
+            cin.clear();
+            while (cin.peek() == '\n')
+                cin.ignore();
+            getline(cin, input);
 
-        if(checkIdx(input)) continue;
+            if (checkIdx(input)) {
+                printIdxErrorMessage(context);
+                continue;
+            }
 
-        int idx = stoi(input);
-        if(idx < min || idx > max) {
-            printIdxErrorMessage(context);
-            continue;
+            int idx = stoi(input);
+            if (idx < min || idx > max)
+            {
+                printIdxErrorMessage(context);
+                continue;
+            }
+            return idx;
         }
-        return idx;
     }
 }
 
 // 인덱스 입력 유효성 검사: 한 자리 숫자인지 판단
-bool checkIdx(const string& inputIdx)
+bool checkIdx(const string &inputIdx)
 {
     string cleaned = removeWhitespace(inputIdx);
-    if (cleaned.length() == 1 && isdigit(cleaned[0]))   return false;
+    return !regex_match(cleaned, regex(R"(\d+)"));
 
-    return true;
 }
 
 // 인덱스 입력 오류 메시지 출력
