@@ -200,7 +200,7 @@ string InputClassroom()
 
         getline(cin, input);
 
-        input = trim(input);
+        input = trimWhitespace(input);
 
         if (!validateRoomNumber(input) || !isExistRoomNumber(input))
         {

@@ -469,7 +469,7 @@ void addClassroom() {
         cout << "classroom number: ";
         string room;
         getline(cin, room);
-        room = trim(room);
+        room = trimWhitespace(room);
 
         try {
             int roomNum = stoi(room);
@@ -508,7 +508,7 @@ void deleteClassroom() {
         cout << "classroom number: ";
         string room;
         getline(cin, room);
-        room = trim(room);
+        room = trimWhitespace(room);
 
         try {
             int roomNum = stoi(room);
