@@ -127,7 +127,7 @@ int getValidatedMenuIndex(const string &context, int min, int max)
 bool checkIdx(const string &inputIdx)
 {
     string cleaned = removeWhitespace(inputIdx);
-    return !regex_match(cleaned, regex(R"(\d+)"));
+    return !regex_match(cleaned, regex(R"(^\s*\d\s*$)"));
 
 }
 
