@@ -27,6 +27,8 @@ bool managerPrompt(const string& admin_id)
 	cout << "4. add/delete classroom\n";
 	cout << "5. logout\n>> ";
 	int admin_choice = getValidatedMenuIndex("menu", 1, 5);
+
+    if (admin_choice < 1 && admin_choice > 5) return true;
 	if (admin_choice == 1)
 		reservationManagementMenu(); // 예약 목록 관리
 	else if (admin_choice == 2)
@@ -45,45 +47,50 @@ bool managerPrompt(const string& admin_id)
 // 관리자: 예약 목록 관리 메뉴
 void reservationManagementMenu()
 {
-    cout << "1. register reservation\n";
-    cout << "2. check reservation list\n";
-    cout << "3. delete reservation\n";
-    // 2차 구현 return
-    cout << "4. return\n>> ";
-    
-    int idx = getValidatedMenuIndex("menu", 1, 4);
+    while (true) {
+        cout << "1. register reservation\n";
+        cout << "2. check reservation list\n";
+        cout << "3. delete reservation\n";
+        // 2차 구현 return
+        cout << "4. return\n>> ";
 
+        int idx = getValidatedMenuIndex("menu", 1, 4);
+        if (idx < 1 && idx >4) continue;
 
-    if (idx == 1){
-        reserveClassroom(InputUser());
-    }   
-    else if (idx == 2)
-        reservation_check_admin1();
-    else if (idx == 3)
-        cancelReservation(InputUser());
-    
-    // 2차 구현 return
-    else if (idx == 4)
-        return;
+        if (idx == 1) {
+            reserveClassroom(InputUser());
+        }
+        else if (idx == 2)
+            reservation_check_admin1();
+        else if (idx == 3)
+            cancelReservation(InputUser());
+
+        // 2차 구현 return
+        else if (idx == 4)  break;
+    }
+    return;
 }
 
 // 관리자: 강의실 예약 허용/금지 메뉴
 void classroomManagementMenu(const string &admin_id)
 {
-    cout << "1. check reservation table\n";
-    cout << "2. accept reservation\n";
-    cout << "3. ban reservation\n";
-    // 2차 구현 return
-    cout << "4. return\n>>";
-    
-    int idx = getValidatedMenuIndex("menu", 1, 4);
+    while (true) {
+        cout << "1. check reservation table\n";
+        cout << "2. accept reservation\n";
+        cout << "3. ban reservation\n";
+        // 2차 구현 return
+        cout << "4. return\n>>";
 
-    if (idx == 1)
-        viewClassroomTimetable();
-    else if (idx == 2 || idx == 3)
-        handleClassroomAccess(admin_id, idx == 2);
-    // 2차 구현 return
-    else if (idx == 4)
+        int idx = getValidatedMenuIndex("menu", 1, 4);
+        if (idx < 1 && idx > 4)   continue;
+
+        if (idx == 1)
+            viewClassroomTimetable();
+        else if (idx == 2 || idx == 3)
+            handleClassroomAccess(admin_id, idx == 2);
+        // 2차 구현 return
+        else if (idx == 4)  break;
+    }
         return;
 }
 
@@ -343,15 +350,19 @@ void handleClassroomAccess(const string &admin_id, bool is_accept_mode)
 
 // 2차 구현 사용자 밴 관리자 프롬프트 메뉴
 void UserBanManagementMenu() {
-    cout << "1. accept user\n";
-    cout << "2. ban user\n";
-    cout << "3. return\n>> ";
+    while (true) {
+        cout << "1. accept user\n";
+        cout << "2. ban user\n";
+        cout << "3. return\n>> ";
 
-    int idx = getValidatedMenuIndex("menu", 1, 3);
+        int idx = getValidatedMenuIndex("menu", 1, 3);
+        if (idx < 1 && idx>3) continue;
 
-    if (idx == 1) acceptUser();
-    else if (idx == 2) banUser();
-    else if (idx == 3) return;
+        if (idx == 1) acceptUser();
+        else if (idx == 2) banUser();
+        else if (idx == 3)  break;
+    }
+    return;
 }
 
 // 2차 구현 사용자 밴 해제
@@ -455,15 +466,17 @@ void ClassroomEditManagementMenu() {
         cout << "3. return\n>> ";
 
         int idx = getValidatedMenuIndex("menu", 1, 3);
+        if (idx < 1 && idx >3)    continue;
 
         if (idx == 1) {
             addClassroom();
-        } else if (idx == 2) {
-            deleteClassroom();
-        } else if (idx == 3) {
-            return;
         }
+        else if (idx == 2) {
+            deleteClassroom();
+        }
+        else if (idx == 3)  break;
     }
+    return;
 }
 
 // 2차 구현 강의실 추가
