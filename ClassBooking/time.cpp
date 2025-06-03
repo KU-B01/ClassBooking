@@ -2,6 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "time.hpp"
 #include "models.hpp"
+#include "util.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -39,13 +40,16 @@ void saveVirtualTime(const std::string& timeStr) {
 
 std::string getVirtualTimeFromUser() {
     std::string input;
-    std::regex pattern(R"(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$)");
 
     while (true) {
         std::cout << "Enter Current time (YYYY-MM-DD HH:MM): ";
         std::getline(std::cin, input);
-        if (std::regex_match(input, pattern)) return input;
-        std::cout << ".!! Incorrect format.\n";
+        
+        if (isValidDateTime(input)) {
+            return input;
+        }
+        
+        std::cout << ".!! Incorrect format or invalid date/time.\n";
     }
 }
 
@@ -92,9 +96,7 @@ void loadTime() {
         return;
     }
 
-    try {
-        parseTime(prev);  // 유효성 검사만
-    } catch (...) {
+    if (!isValidDateTime(prev)) {
         std::cerr << "[Error] Invalid time format in time.txt. Exiting...\n";
         exit(1);
     }
@@ -107,18 +109,22 @@ void VirtualTime() {
         std::cout << "last time: " << prev << "\n";
     }
 
-    g_virtualTimeStr = getVirtualTimeFromUser();
-    g_virtualTimeTm = parseTime(g_virtualTimeStr);
+    while (true) {
+        g_virtualTimeStr = getVirtualTimeFromUser();
+        g_virtualTimeTm = parseTime(g_virtualTimeStr);
 
-    if (!prev.empty()) {
-        std::tm prevTm = parseTime(prev);
+        if (!prev.empty()) {
+            std::tm prevTm = parseTime(prev);
 
-        if (isTimeEarlier(g_virtualTimeTm, prevTm)) {
-            std::cerr << ".!! Cannot go back in time. Exiting...\n";
-            exit(1);
+            if (isTimeEarlier(g_virtualTimeTm, prevTm)) {
+                std::cout << ".!! Cannot go back in time. Please enter a time later than " << prev << "\n";
+                continue;
+            }
+
+            resetReservationsIfNewWeek(prevTm, g_virtualTimeTm);
         }
 
-        resetReservationsIfNewWeek(prevTm, g_virtualTimeTm);
+        break;
     }
 
     saveVirtualTime(g_virtualTimeStr);

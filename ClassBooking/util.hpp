@@ -22,6 +22,8 @@ bool isValidTime(const std::string& time);               // HH:00 형식인지 �
 int timeToMinutes(const std::string& time);              // "09:00" -> 540 변환
 bool isTimeOverlap(const std::string& s1, const std::string& e1,
                    const std::string& s2, const std::string& e2); // 시간 겹침 여부
+// 시간관련 2차 구현
+bool isValidDateTime(const std::string& timeStr);
 
 // ======= 인덱스 검사 =======
 bool checkIdx(const std::string& inputIdx);  // 위치 기반

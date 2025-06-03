@@ -150,3 +150,58 @@ bool isValidPassword(const string &pw)
     const string pwPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d~!@#$%^&*()]{4,20}$";
     return regex_match(pw, regex(pwPattern));
 };
+
+// 2차 구현 시각 유효성 판단
+bool isValidDateTime(const std::string& timeStr) {
+    std::regex pattern(R"(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$)");
+    if (!std::regex_match(timeStr, pattern)) {
+        return false;
+    }
+    
+    // 년, 월, 일, 시, 분 추출
+    int year = std::stoi(timeStr.substr(0, 4));
+    int month = std::stoi(timeStr.substr(5, 2));
+    int day = std::stoi(timeStr.substr(8, 2));
+    int hour = std::stoi(timeStr.substr(11, 2));
+    int minute = std::stoi(timeStr.substr(14, 2));
+    
+    // 기본 범위 검사
+    if (year < 1 || year > 9999) return false;
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 31) return false;
+    if (hour < 0 || hour > 23) return false;
+    if (minute < 0 || minute > 59) return false;
+    
+    // 월별 일수 검사
+    int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    
+    // 윤년 검사
+    bool isLeapYear = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+    if (isLeapYear) {
+        daysInMonth[1] = 29;
+    }
+    
+    if (day > daysInMonth[month - 1]) {
+        return false;
+    }
+    
+    if (year >= 1900) {
+        std::tm tm = {};
+        tm.tm_year = year - 1900;
+        tm.tm_mon = month - 1;
+        tm.tm_mday = day;
+        tm.tm_hour = hour;
+        tm.tm_min = minute;
+        tm.tm_sec = 0;
+        tm.tm_isdst = -1;
+        
+        std::time_t t = std::mktime(&tm);
+        return t != -1;
+    }
+    
+    if (month == 2 && day == 29 && !isLeapYear) {
+        return false;
+    }
+    
+    return true;
+}
