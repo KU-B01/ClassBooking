@@ -262,28 +262,26 @@ bool reserveClassroom(const std::string user_id)
     timeBlocks.emplace_back(newStartHour, newEndHour);
     sort(timeBlocks.begin(), timeBlocks.end());
 
-    int streakStart = timeBlocks[0].first;
-    int streakEnd = timeBlocks[0].second;
-    int maxStreak = 0;
-    for (size_t i = 1; i < timeBlocks.size(); ++i)
-    {
+    int currentConsecStartHour = timeBlocks[0].first;
+    int currentConsecEndHour = timeBlocks[0].second;
+    int maxConsecutiveHours = 0;
+
+    for (size_t i = 1; i < timeBlocks.size(); ++i) {
         int currStart = timeBlocks[i].first;
         int currEnd = timeBlocks[i].second;
 
-        if (currStart == streakEnd)
-        {
-            streakEnd = currEnd;
-        }
-        else
-        {
-            maxStreak = max(maxStreak, streakEnd - streakStart);
-            streakStart = currStart;
-            streakEnd = currEnd;
+        if (currStart == currentConsecEndHour) {
+            currentConsecEndHour = currEnd;
+        } else {
+            maxConsecutiveHours = max(maxConsecutiveHours, currentConsecEndHour - currentConsecStartHour);
+            currentConsecStartHour = currStart;
+            currentConsecEndHour = currEnd;
         }
     }
-    maxStreak = max(maxStreak, streakEnd - streakStart);
-    if (!is_admin && maxStreak > 3)
-    {
+
+    maxConsecutiveHours = max(maxConsecutiveHours, currentConsecEndHour - currentConsecStartHour);
+
+    if (!is_admin && maxConsecutiveHours > 3) {
         cout << ".!! You cannot reserve more than 3 consecutive hours in the same room.\n";
         return false;
     }
@@ -350,23 +348,28 @@ bool cancelReservation(const string& user_id) {
         flag = true;
         return flag;
     }
-    cout << "Enter the number you want to cancel: ";
-    string choice;
-    cin.clear();
-    while (cin.peek() == '\n')
-        cin.ignore(); // 개행만 남은 버퍼 날리기
-    getline(cin, choice);
-    if (checkIdx(choice)) 
-    {
-		printIdxErrorMessage("menu");
-        return flag; // 인덱스 입력 유효성 검사
-    }
-    int idx_r = stoi(choice);
-    // cout << reservation_number << endl;
-    if (idx_r < 1 || idx_r > reservation_number)
-    {
-        printIdxErrorMessage("menu");
-        return flag;
+
+    int idx_r = -1;
+    while (true) {
+        cout << "Enter the number you want to cancel: ";
+        string choice;
+        cin.clear();
+        while (cin.peek() == '\n')
+            cin.ignore();
+        getline(cin, choice);
+
+        if (checkIdx(choice)) {
+            printIdxErrorMessage("menu");
+            continue;
+        }
+
+        idx_r = stoi(choice);
+        if (idx_r < 1 || idx_r > reservation_number) {
+            printIdxErrorMessage("menu");
+            continue;
+        }
+
+        break; // 유효한 입력 받으면 루프 탈출
     }
 
     reservations.erase(reservations.begin() + indices[idx_r - 1]);
