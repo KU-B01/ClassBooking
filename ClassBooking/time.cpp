@@ -141,9 +141,6 @@ int getCurrentHour() {
     return g_virtualTimeTm.tm_hour;
 }
 
-int getCurrentMinute() {
-	return g_virtualTimeTm.tm_min;
-}
 
 bool isBeforeVirtualTime(const std::string& day, const std::string& start) {
     int inputDay = std::stoi(day) - 1; // 입력 요일 (1~5) → 0~4
@@ -152,11 +149,10 @@ bool isBeforeVirtualTime(const std::string& day, const std::string& start) {
 
     int curDay = getCurrentWeekdayIndex();
     int curHour = getCurrentHour();
-    int curMinute = getCurrentMinute();
 
     return (inputDay < curDay) 
         || (inputDay == curDay && inputHour < curHour)
-        || (inputDay == curDay && inputHour == curHour && inputMinute < curMinute);
+        || (inputDay == curDay && inputHour == curHour);
 }
 
 
