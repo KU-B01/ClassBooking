@@ -151,8 +151,7 @@ bool isBeforeVirtualTime(const std::string& day, const std::string& start) {
     int curHour = getCurrentHour();
 
     return (inputDay < curDay) 
-        || (inputDay == curDay && inputHour < curHour)
-        || (inputDay == curDay && inputHour == curHour);
+        || (inputDay == curDay && inputHour < curHour);
 }
 
 
