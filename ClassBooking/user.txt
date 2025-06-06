@@ -1,2 +1,3 @@
 user1	user123	0	0
 user3	user123	0	0
+user5	pass5	0	1
