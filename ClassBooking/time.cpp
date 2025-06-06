@@ -49,7 +49,7 @@ std::string getVirtualTimeFromUser() {
             return input;
         }
         
-        std::cout << ".!! Incorrect format or invalid date/time.\n";
+        std::cout << ".!! Incorrect form: please enter date in 'YYYY-MM-DD HH:MM' format.\n";
     }
 }
 
