@@ -96,7 +96,7 @@ bool reserveClassroom(const std::string user_id)
     {
         // 2차 구현 사용자 밴 여부 확인
         if (isUserBanned(local_id)) {
-        cout << "This account can not reserve.\n\n";
+        cout << "This account can't reserve.\n\n";
         return false;
         }
         

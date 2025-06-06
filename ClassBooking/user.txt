@@ -1,3 +1,2 @@
-user1	user123	0	1
-user2	user123	0	1
-user3 user123     1      1
+user1	user123	0	0
+user3	user123	0	0
