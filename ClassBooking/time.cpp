@@ -49,7 +49,7 @@ std::string getVirtualTimeFromUser() {
             return input;
         }
         
-        std::cout << ".!! Incorrect format or invalid date/time.\n";
+        std::cout << ".!! Incorrect form: please enter date in 'YYYY-MM-DD HH:MM' format.\n";
     }
 }
 
@@ -70,7 +70,7 @@ void resetReservationsIfNewWeek(const std::tm& prev, const std::tm& curr) {
         std::ofstream fout("reservation.txt", std::ios::trunc);
         fout.close();
         reservations.clear();
-        std::cout << "[Info] A new week has started. reservation.txt has been cleared.\n";
+        std::cerr << "[Info] A new week has started. reservation.txt has been cleared.\n";
     }
 }
 
@@ -117,7 +117,7 @@ void VirtualTime() {
             std::tm prevTm = parseTime(prev);
 
             if (isTimeEarlier(g_virtualTimeTm, prevTm)) {
-                std::cout << ".!! Cannot go back in time. Please enter a time later than " << prev << "\n";
+                std::cout << "It's already past time. You can't reserve on that day." << prev << "\n";
                 continue;
             }
 
