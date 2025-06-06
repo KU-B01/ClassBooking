@@ -117,7 +117,7 @@ void VirtualTime() {
             std::tm prevTm = parseTime(prev);
 
             if (isTimeEarlier(g_virtualTimeTm, prevTm)) {
-                std::cout << "It's already past time. You can't reserve on that day." << prev << "\n";
+                std::cout << "It's already past time. You can't reserve on that day." << "\n";
                 continue;
             }
 
