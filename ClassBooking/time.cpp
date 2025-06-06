@@ -70,7 +70,7 @@ void resetReservationsIfNewWeek(const std::tm& prev, const std::tm& curr) {
         std::ofstream fout("reservation.txt", std::ios::trunc);
         fout.close();
         reservations.clear();
-        std::cout << "[Info] A new week has started. reservation.txt has been cleared.\n";
+        std::cerr << "[Info] A new week has started. reservation.txt has been cleared.\n";
     }
 }
 
