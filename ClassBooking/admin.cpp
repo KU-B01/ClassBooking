@@ -538,7 +538,7 @@ void deleteClassroom() {
         }
 
         if (!isExistRoomNumber(room)) {
-            cout << "The classroom you entered doesn’t exist.\n";
+            cout << "The classroom you entered doesn't exist.\n";
             continue;
         }
 
