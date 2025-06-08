@@ -12,6 +12,7 @@
 #include <sstream>
 #include <map>
 #include <algorithm>
+#include <regex>
 
 using namespace std;
 
@@ -479,6 +480,10 @@ void ClassroomEditManagementMenu() {
     return;
 }
 
+string cleanRoomNumber(const string& input) {
+    return regex_replace(input, regex("[^0-9]"), ""); // 숫자만 남김
+}
+
 // 2차 구현 강의실 추가
 void addClassroom() {
     while (true) {
@@ -486,6 +491,7 @@ void addClassroom() {
         string room;
         getline(cin, room);
         room = trimWhitespace(room);
+        room = cleanRoomNumber(room);
 
         try {
             int roomNum = stoi(room);
