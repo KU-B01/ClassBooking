@@ -45,6 +45,8 @@ std::string getVirtualTimeFromUser() {
         std::cout << "Enter Current time (YYYY-MM-DD HH:MM): ";
         std::getline(std::cin, input);
         
+        input = trim(input);
+        
         if (isValidDateTime(input)) {
             return input;
         }
@@ -145,7 +147,7 @@ int getCurrentHour() {
 bool isBeforeVirtualTime(const std::string& day, const std::string& start) {
     int inputDay = std::stoi(day) - 1; // 입력 요일 (1~5) → 0~4
     int inputHour = std::stoi(start.substr(0, 2));
-	int inputMinute = std::stoi(start.substr(3, 2));
+	// int inputMinute = std::stoi(start.substr(3, 2));
 
     int curDay = getCurrentWeekdayIndex();
     int curHour = getCurrentHour();
